@@ -1,0 +1,42 @@
+{
+    "boot-up": {
+        "total": {
+            "description": "Total Boot up time",
+			"process name": "",
+			"owner": "",
+			"log point": {
+				"begin": "xxxxxx",
+				"end": "xxxxxx"
+			}
+		},
+		"application workflow": {
+            "description": "application workflow time cost",
+			"process name": "application workflow",
+			"owner": "HMI",
+			"log point": {
+				"begin": "xxxxxx",
+				"end": "xxxxxx "
+			}
+		}
+	},
+    "routing": {
+        "total": {
+            "description": "Total routing time cost",
+			"process name": "",
+			"owner": "",
+			"log point": {
+				"begin": "xxxxxx",
+				"end": "xxxxxx"
+			}
+		},
+		"TASDK onboard": {
+            "description": "onboard time cost",
+			"process name": "onboard time",
+			"owner": "TASDK",
+			"log point": {
+				"begin": "xxxxxx  ",
+				"end": "xxxxxx "
+			}
+		}
+	}
+} 
