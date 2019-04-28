@@ -102,6 +102,14 @@ class NavLog:
 
     def endTime(self):
         return self.end_time
+        
+
+    def search(self, key, item, start=0, end=-1):
+        for log in self.logList[start:end]:
+            if key in log[self.logHeadRow.index(item)]:
+                return log
+            else:
+                return -1
 
 
 if __name__ == "__main__":

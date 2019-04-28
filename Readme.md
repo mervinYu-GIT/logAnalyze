@@ -85,6 +85,21 @@ item.count 记录log文件中相同item的log数量，item.list保存这些log�
 
 以python datetime时间格式返回log结束时间。
 
+##### navLog.search(self, key, item, star, end)
+
+在logList查找指定项中的key,如果key存在，则返回查找到的log.
+
+* key:
+  * 类型：str
+  * 需要查找的关键字
+* item:
+  * 类型：str
+  * 指定查找的log项
+  * 取值范围：logHeadRow
+* start，end:
+  * 类型：int
+  * 指定查找的范围。默认start=0, end=-1
+
 #### function calcTime(beginTime, endTime)
 
 用timedelta的形式返回endTime与beginTime之间的时间间隔。
