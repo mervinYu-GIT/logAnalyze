@@ -187,19 +187,6 @@ if __name__ == "__main__":
 
     work_book.save('./navLog.xls')
 
-    print(args)
-    if args.cfg:
-        cfg_file = args.cfg
-        row = 2
-        col = 0
-        with open(cfg_file, 'r') as json_f:
-            json_cfg = json.load(json_f)
-            print(json_cfg)
-            for k, v in json_cfg.items():
-                work_sheet.write(row, col, k)
-                row += 1
-
-        
 
     if args.inputFile:
         nav_log1 = NavLog(args.inputFile)
