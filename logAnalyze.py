@@ -14,8 +14,10 @@ class NavLogAnalyze:
 
 def calcTime(beginTime, endTime):
     """ 计算beginTime与endTime之间的时间间隔，以deltatime的格式返回 """
+    begin = datetime.strptime(beginTime, "%d.%m.%Y %H:%M:%S:%f")
+    end = datetime.strptime(endTime, "%d.%m.%Y %H:%M:%S:%f")
     try:
-        delta_time = endTime - beginTime
+        delta_time = end - begin
         return delta_time
     except:
         print('endTime must bigger than beginTime.')
@@ -114,31 +116,56 @@ if __name__ == "__main__":
     arg_parser.add_argument('--cfg', help="config file, eg: path/config.json")
     args = arg_parser.parse_args()
 
+    if args.inputFile:
+      nav_log1 = NavLog(args.inputFile)
+    if args.cfg:
+        config_file = args.cfg
+    print('------------------------------------------------------------')
+
     # 创建excel文件
     work_book = xlwt.Workbook('utf-8')  # 工作簿
     work_sheet = work_book.add_sheet('navLog')
-    work_sheet.write(1, 0, 'this is test')
+    # work_sheet.write(1, 0, 'this is test')
    
 
 
-    print(args)
-    row = 2
+    # print(args)
+    row = 0
     col = 0
-    with open(args.cfg, 'r') as json_f:
+    with open(config_file, 'r') as json_f:
         json_cfg = json.load(json_f)
         print(json_cfg)
         for k, v in json_cfg.items():
             work_sheet.write(row, col, k)
+            for k_1, v_1 in v.items():
+                col += 1
+                work_sheet.write(row, col, k_1)
+                for k_2, v_2 in v_1.items():
+                    col += 1
+                    if k_2 == 'log point':
+                        """
+                            1. 查找log
+                            2. 求出deltatime
+                            3. 转换deltatime
+                            4. 写入work_sheet
+                        """
+                        # search log
+                        for log in nav_log1.logList:
+                            if k_2['begin'] in \
+                            log[nav_log1.logHeadRow.index('Message')]:
+                                beginTime = \
+                                datetime.strptime(\
+                                    log[nav_log1.logHeadRow.index('Time')],\
+                                    '%d.%m.%Y %H:%M:%S:%f')
+                        # pass
+                    else:
+                        work_sheet.write(row, col, v_2)
+                row += 1
+                col -= (len(v_1) + 1)
             row += 1
+            col -= (len(v) - 2)
 
     work_book.save('./navLog.xls')
 
 
 
-    # if args.inputFile:
-    #     nav_log1 = NavLog(args.inputFile)
-    # print('------------------------------------------------------------')
-    # print('log begin time: ')
-    # print(nav_log1.beginTime())
-    # delta_time = calcTime(nav_log1.beginTime(), nav_log1.endTime())
-    # print(delta_time)
