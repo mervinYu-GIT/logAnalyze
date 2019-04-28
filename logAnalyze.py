@@ -102,9 +102,10 @@ class NavLog:
 
     def endTime(self):
         return self.end_time
-        
+
 
     def search(self, key, item, start=0, end=-1):
+        """ 在logList[start:end]的log item项中查找key """
         for log in self.logList[start:end]:
             if key in log[self.logHeadRow.index(item)]:
                 return log
@@ -143,10 +144,24 @@ if __name__ == "__main__":
 
 
 
-    # if args.inputFile:
-    #     nav_log1 = NavLog(args.inputFile)
-    # print('------------------------------------------------------------')
+    if args.inputFile:
+        nav_log1 = NavLog(args.inputFile)
+    print('------------------------------------------------------------')
     # print('log begin time: ')
     # print(nav_log1.beginTime())
     # delta_time = calcTime(nav_log1.beginTime(), nav_log1.endTime())
     # print(delta_time)
+    log_start = nav_log1.search('start', self.logHeadRow[-1])
+    if log_start != -1:
+        startTime = datetime.strptime(log_start['Time'],\
+        "%d.%m.%Y %H:%M:%S:%f")
+        log_end = nav_log1.search("end", self.logHeadRow[-1], self.logList.index(log_start))
+        if log_end != -1:
+            endTime = datetime.strptime(log_end['Time'],\
+                "%d.%m.%Y %H:%M:%S:%f")
+            delta_time = calcTime(startTime, endTime)
+        else:
+            print('end point not found!')
+    else:
+        print('start point not found!')
+    

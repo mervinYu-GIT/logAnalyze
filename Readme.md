@@ -99,6 +99,9 @@ item.count 记录log文件中相同item的log数量，item.list保存这些log�
 * start，end:
   * 类型：int
   * 指定查找的范围。默认start=0, end=-1
+* 返回值：
+  * 匹配的log
+  * -1: 未找到匹配的log
 
 #### function calcTime(beginTime, endTime)
 
