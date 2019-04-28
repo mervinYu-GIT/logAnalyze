@@ -23,6 +23,13 @@ def calcTime(beginTime, endTime):
         print('endTime must bigger than beginTime.')
 
 
+def outPut(fileName, path='./log_xls'):
+    if not os.path.exists('path'):
+        os.mkdir('./log_xls')
+
+    work_book.save(path + fileName)
+
+
 class NavLog:
     """ 将提供的log文件转换成python可识别的数据类型 """
 
@@ -48,6 +55,7 @@ class NavLog:
         # 循环读取文件流中剩余的行并进行解析
         while   True:
             curLine = fd.readline()          # 读取当前行
+            # print(curLine)
             if  curLine == '':     # 若当前行为空字符，表示读到文件末尾，跳出循环
                 # print('end file!!--------')
                 break
@@ -56,14 +64,15 @@ class NavLog:
             # 若当前行存在目的字符串，表示接下来连续的几行都为当前log的信息，直到出现单独的空白符。
             elif    curLine.find('halsystemsettingsadapter') != -1\
                     or curLine.find('Sending:  origin') != -1\
-                    or curLine.find('Route request'):
+                    or curLine.find('Route request') != -1:
+                    print('--------------------hello------------------------------')
                     while True:
                         nextLine = fd.readline()
                         if nextLine.isspace():
                             break
                         curLine = curLine + nextLine
-                    # print(curLine)
-
+            # print(curLine)
+            print(curLine.split('|'))
             self.logList.append(curLine.split('|'))
 
         fd.close()  #文件读取结束，关闭文件。
@@ -104,6 +113,17 @@ class NavLog:
 
     def endTime(self):
         return self.end_time
+
+
+    def search(self, key, item, start=0, end=-1):
+        """ 在logList[start:end]的log item项中查找key """
+        for log in self.logList[start:end]:
+            if key in log[self.logHeadRow.index(item)]:
+                print('log index: ' + str(self.logList.index(log)))
+                print('-----------------------------------------')
+                print(log[self.logHeadRow.index(item)])
+                return log
+        return -1
 
 
 if __name__ == "__main__":
@@ -167,5 +187,47 @@ if __name__ == "__main__":
 
     work_book.save('./navLog.xls')
 
+    print(args)
+    if args.cfg:
+        cfg_file = args.cfg
+        row = 2
+        col = 0
+        with open(cfg_file, 'r') as json_f:
+            json_cfg = json.load(json_f)
+            print(json_cfg)
+            for k, v in json_cfg.items():
+                work_sheet.write(row, col, k)
+                row += 1
 
+        
+
+    if args.inputFile:
+        nav_log1 = NavLog(args.inputFile)
+    print('------------------------------------------------------------')
+    # print('log begin time: ')
+    # print(nav_log1.beginTime())
+    # delta_time = calcTime(nav_log1.beginTime(), nav_log1.endTime())
+    # print(delta_time)
+    print(nav_log1.logHeadRow)
+    print('----------------------------------------------------------')
+    print(nav_log1.logList)
+    log_start = nav_log1.search("System settings notification", 'Message')
+    if log_start != -1:
+        beginTime = datetime.strptime(log_start[nav_log1.logHeadRow.index('Time')],\
+        "%d.%m.%Y %H:%M:%S:%f")
+    else:
+        beginTime = nav_log1.begin_time
+        print('start point not found! begin time was seted to log begin time.')
+
+    log_end = nav_log1.search("Sending:  origin", 'Message')
+    if log_end != -1:
+        endTime = datetime.strptime(log_end[nav_log1.logHeadRow.index('Time')],\
+            "%d.%m.%Y %H:%M:%S:%f")
+    else:
+        endTime = nav_log1.end_time
+        print('end point not found! end time was seted to log end time.')
+
+    delta_time = calcTime(beginTime, endTime)
+    print(delta_time)
+    print(str(delta_time)[:-7])
 
