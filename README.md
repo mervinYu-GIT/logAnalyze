@@ -2,7 +2,13 @@
 
 ## Description
 
-读取navigationlog文件，将文件内容转换成列表或字典的形式，根据配置条件输出相应内容。输出可以是终端也可以是文件。
+读取navigation的log文件，将文件内容转换成列表或字典的形式，根据配置条件输出相应内容。输出可以是终端也可以是文件。
+navLog.py从一个日志文件中获取需要的信息，以配置文件的定义格式将数据保存到xlsx工作表中。
+程序工作流程：
+
+  1. 装载navigation日志文件;
+  2. 解析json配置文件;
+  3. 生成excel表格文件
 
 ## log文件的数据格式
 
@@ -10,12 +16,6 @@ Log Level|Time|PID|Category|File|Function(Line)|Message
 
 1. log文件内容按照以上顺序排列，大部分log内容以行的形式保存。
 2. 在有systemSetting, calculateRoute 和 RouteComputationWork时，Message信息以多行存储并且以单独的换行符结束。
-
-### 组织文件信息
-
-1. 将文件内容组织为字典列表的形式。
-2. 将字典列表的内容组织为字典嵌套字典的形式。
-3. 设计命令行格式以及相关参数。
 
 ### json文件操作
 
@@ -35,13 +35,10 @@ config.json
 3. 创建工作表
 4. 录入信息
 
+更新为openpyxl模块。
+
 ## 可配置的信息提取规则
-
-## 展示信息
-
-### 以TXT文件的形式
-
-### 以excel文件的数据形式
+由给出的json格式配置文件给出。eg: ./config_template.json
 
 ## Function descriptino
 
@@ -112,3 +109,12 @@ item.count 记录log文件中相同item的log数量，item.list保存这些log�
 1. UnboundLocalError: local variable 'fd' referenced before assignment
 2. Permission denied: './navLog.xls'
 文件被打开，关闭文件。
+3. json.load()产生的字典顺序与json文件的顺序不符。
+通过有序字典解决。
+dictStr = json.loads(jsonstr,object_pairs_hook=collections.OrderedDict)
+
+## requirement
+
+1. 多文件输入，多sheet输出
+2. 表格格式调整
+3. 图形界面
