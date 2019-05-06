@@ -13,20 +13,14 @@ from public_fun import calcTime
 
 class NavXlsxFile:
     """ navigation xlsx file """
-    def __init__(self, xlsx_file, cfg_file, log_file):
+    def __init__(self, xlsx_file, cfg_file):
         self.cfg_file = cfg_file
         self.xlsx_file = xlsx_file
-        self.log_file = NavLogFile(log_file)
+        self.work_book = Workbook()
         pass
 
 
-    def load_data(self, sheet_name, row=1, col=1):
-        try:
-            self.work_book = Workbook()
-        except:
-            open('xlsx file open faild!')
-            sys.exit()
-
+    def load_data(self, log_file, sheet_name, row=1, col=1):
         row += 1
         work_sheet = self.work_book.create_sheet(sheet_name, 0)
         self.current_sheet = work_sheet
@@ -43,7 +37,7 @@ class NavXlsxFile:
                 for k_1, v_1 in v.items():
                     col += 1
                     work_sheet.cell(row, col, k_1).alignment = \
-                        Alignment(horizontal = 'center', vertical = 'center')     # for openpyxl
+                        Alignment(horizontal = 'center', vertical = 'center')     
                     for k_2, v_2 in v_1.items():
                         col += 1
                         if k_2 == 'log point':
@@ -54,38 +48,33 @@ class NavXlsxFile:
                                 4. 写入work_sheet
                             """
                             if v_2['begin'] == '':
-                                beginTime = self.log_file.begin_time
+                                beginTime = log_file.begin_time
                             else:
-                                beginTime = self.log_file.searchTime(v_2['begin'], 'Message')
-                                if beginTime == -1:
-                                    beginTime = self.log_file.begin_time
-                                    print('start point not found! begin time was seted to log begin time.')
+                                beginTime = log_file.searchTime(v_2['begin'], 'Message')
 
                             if v_2['end'] == '':
-                                endTime = self.log_file.end_time
+                                endTime = log_file.end_time
                             else:
-                                endTime = self.log_file.searchTime(v_2['end'], 'Message')
-                                if endTime == -1:
-                                    endTime = self.log_file.end_time
-                                    print('end point not found! end time was seted to log end time.')
+                                endTime = log_file.searchTime(v_2['end'], 'Message')
 
-                            delta_time = calcTime(beginTime, endTime)
-                            work_sheet.cell(row, col, str(delta_time)).alignment = \
-                                Alignment(horizontal = 'center', vertical = 'center')        # for openpyxl
-                            try:
+                            if beginTime == -1 or endTime == -1:
+                                continue
+                            else:
+                                delta_time = calcTime(beginTime, endTime)
+                                work_sheet.cell(row, col, str(delta_time)[:-3]).alignment = \
+                                    Alignment(horizontal = 'center', vertical = 'center')  
+
+                            if work_sheet.cell(1, col).value == None:
                                 work_sheet.cell(1, col, 'time comsuming').alignment = \
-                                    Alignment(horizontal = 'center', vertical = 'center')     # for openpyxl
-                            except:
-                                pass
+                                    Alignment(horizontal = 'center', vertical = 'center')     
 
                         else:   # <if k_2 == 'log point'>
                             work_sheet.cell(row, col, v_2).alignment = \
-                                Alignment(horizontal = 'center', vertical = 'center')      # for openpyxl
-                            try:
+                                Alignment(horizontal = 'center', vertical = 'center')      
+
+                            if work_sheet.cell(1, col).value == None:
                                 work_sheet.cell(1, col, k_2).alignment = \
-                                    Alignment(horizontal = 'center', vertical = 'center')    # for openpyxl
-                            except:
-                                pass
+                                    Alignment(horizontal = 'center', vertical = 'center')    
                     row += 1
                     col -= (len(v_1) + 1)
                 row += 1
