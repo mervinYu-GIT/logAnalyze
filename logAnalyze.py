@@ -13,9 +13,6 @@ class NavLogAnalyze:
 
 
 if __name__ == "__main__":
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
     arg_parser = ArgumentParser()
     arg_parser.add_argument('log_files', nargs = '*', help = "input log file")
     arg_parser.add_argument('--cfg', help="config file, eg: path/config.json")
@@ -34,8 +31,6 @@ if __name__ == "__main__":
     else:
         xlsx_file = './navLog.xlsx'
 
-    # xlsx_file = NavXlsxFile(xlsx_file, cfg_file, log_file)
-    # xlsx_file.load_data('navLog')
     xlsx_file = NavXlsxFile(xlsx_file, cfg_file)
     for log_file in log_files:
         nav_log_file = NavLogFile(log_file)

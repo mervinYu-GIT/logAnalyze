@@ -7,7 +7,6 @@ import openpyxl
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
-
 from navLog import NavLogFile
 from public_fun import calcTime
 
@@ -21,6 +20,7 @@ class NavXlsxFile:
 
 
     def load_data(self, log_file, sheet_name, row=1, col=1):
+        """ load message that we need in work sheet """
         row += 1
         work_sheet = self.work_book.create_sheet(sheet_name, 0)
         self.current_sheet = work_sheet
@@ -41,23 +41,17 @@ class NavXlsxFile:
                     for k_2, v_2 in v_1.items():
                         col += 1
                         if k_2 == 'log point':
-                            """
-                                1. 查找log
-                                2. 求出deltatime
-                                3. 转换deltatime
-                                4. 写入work_sheet
-                            """
-                            if v_2['begin'] == '':
+                            if v_2['begin'] == '':        # search begin time in file logs
                                 beginTime = log_file.begin_time
                             else:
-                                beginTime = log_file.searchTime(v_2['begin'], 'Message')
+                                beginTime = log_file.searchTime(v_2['begin'].encode('utf-8'), 'Message')
 
-                            if v_2['end'] == '':
+                            if v_2['end'] == '':          # search end time
                                 endTime = log_file.end_time
                             else:
-                                endTime = log_file.searchTime(v_2['end'], 'Message')
+                                endTime = log_file.searchTime(v_2['end'].encode('utf-8'), 'Message')
 
-                            if beginTime == -1 or endTime == -1:
+                            if beginTime == -1 or endTime == -1:   # calc delta time
                                 continue
                             else:
                                 delta_time = calcTime(beginTime, endTime)
@@ -65,7 +59,7 @@ class NavXlsxFile:
                                     Alignment(horizontal = 'center', vertical = 'center')  
 
                             if work_sheet.cell(1, col).value == None:
-                                work_sheet.cell(1, col, 'time comsuming').alignment = \
+                                work_sheet.cell(1, col, 'time cost(ms)').alignment = \
                                     Alignment(horizontal = 'center', vertical = 'center')     
 
                         else:   # <if k_2 == 'log point'>
@@ -82,6 +76,7 @@ class NavXlsxFile:
 
 
     def resize(self):
+        """ resize sheet unit automotive """
         for col in range(self.current_sheet.max_column):
             col_width = 0
             for row in range(self.current_sheet.max_row):
@@ -93,6 +88,7 @@ class NavXlsxFile:
                 = float(col_width + 3.0)
 
     def create(self):
+        """ create .xlsx file in file system """
         try:
             self.work_book.save(self.xlsx_file)
         except:

@@ -38,6 +38,7 @@ config.json
 更新为openpyxl模块。
 
 ## 可配置的信息提取规则
+
 由给出的json格式配置文件给出。eg: ./config_template.json
 
 ## Function descriptino
@@ -112,6 +113,8 @@ item.count 记录log文件中相同item的log数量，item.list保存这些log�
 3. json.load()产生的字典顺序与json文件的顺序不符。
 通过有序字典解决。
 dictStr = json.loads(jsonstr,object_pairs_hook=collections.OrderedDict)
+4. UnicodeDecodeError: 'ascii' codec can't decode byte 0xe4 in position 3830: ordinal not in range(128)
+[answer]<https://stackoverflow.com/questions/10406135/unicodedecodeerror-ascii-codec-cant-decode-byte-0xd1-in-position-2-ordinal>
 
 ## requirement
 
