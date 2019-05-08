@@ -121,3 +121,5 @@ dictStr = json.loads(jsonstr,object_pairs_hook=collections.OrderedDict)
 1. 多文件输入，多sheet输出
 2. 表格格式调整
 3. 图形界面
+4. 每次routine时间
+5. 每次searching的时间

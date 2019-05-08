@@ -88,6 +88,18 @@ class NavLogFile:
                 logs.append(log)
         return logs
 
+    def searchRouteLog(self, item, route_start, route_end):
+        """ search all routine log """
+        logs = []
+        for log in self.logList:
+            if route_start or route_end in log[self.logHeadRow.index(item)]:
+                logs.append(log)
+
+        for index in range(len(logs)-1):
+            if logs[index][self.logHeadRow.index(item)] \
+                == logs[index+1][self.logHeadRow.index(item)]:
+                del logs[index]
+        return logs
 
     def searchTime(self, key, item, start=0, end=-1):
         """ search log time that we need. """
@@ -97,7 +109,7 @@ class NavLogFile:
                 # print('log index: ' + str(self.logList.index(log)))
                 # print('-----------------------------------------')
                 # print(log[self.logHeadRow.index(item)])
-                self.logList.remove(log)
+                # self.logList.remove(log)
                 return datetime.strptime(log[self.logHeadRow.index('Time')], \
                     "%d.%m.%Y %H:%M:%S:%f")
                 # result = datetime.strptime(log[self.logHeadRow.index('Time')], \
