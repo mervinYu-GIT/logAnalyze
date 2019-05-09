@@ -242,8 +242,6 @@ class NavXlsxFile:
                         continue
                     else:
                         delta_time = public_fun.calcTime(beginTime, endTime)
-                        print(delta_time)
-                        print(delta_time.total_seconds())
                         work_sheet.cell(row, col, delta_time.total_seconds()).alignment = \
                             Alignment(horizontal = 'center', vertical = 'center')
                         col += 1
