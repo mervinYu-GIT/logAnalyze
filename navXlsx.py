@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import sys
-import json
 
+import sys
+from datetime import datetime
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -12,8 +12,8 @@ from navLog import NavLogFile
 
 class NavXlsxFile:
     """ navigation xlsx file """
-    def __init__(self, file_name, cfg_file):
-        self.cfg_file = cfg_file
+    def __init__(self):
+        # self.cfg_file = cfg_file
         self.work_book = Workbook()
         self.current_sheet = self.work_book.active
         self.current_sheet.title = 'navLog'
@@ -44,6 +44,7 @@ class NavXlsxFile:
         work_sheet = self.current_sheet
         work_sheet.cell(row, col, value).style = self.sheet_style
 
+
     def resize(self, sheet_name):
         """ resize sheet unit automotive """
         for col in range(self.current_sheet.max_column):
@@ -64,4 +65,25 @@ class NavXlsxFile:
         except:
             print('create xlsx file faild!')
             sys.exit()
+
+
+    def multiple_rounds(self, log_file, origin_cursor, start, end):
+        nav_log_file = NavLogFile(log_file)
+        searchs = nav_log_file.searchLogs("Message", start, end)
+        index = 2
+        round_index = 1
+        row = origin_cursor['row']
+        col = origin_cursor['col'] + 4
+        offset = 0
+        while index < len(searchs) - 1:
+            round_index += 1
+            self.write_cell(row, col + offset, 'time cost(s)Round' + str(round_index))
+            begin = datetime.strptime(searchs[index][nav_log_file.logHeadRow.index('Time')],\
+                "%d.%m.%Y %H:%M:%S:%f")
+            end = datetime.strptime(searchs[index+1][nav_log_file.logHeadRow.index('Time')],\
+                "%d.%m.%Y %H:%M:%S:%f")
+            delta_time = end - begin
+            self.write_cell(row + 1, col + offset, delta_time.total_seconds())
+            offset += 1
+            index += 2
 

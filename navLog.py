@@ -116,3 +116,6 @@ class NavLogFile:
                 return datetime.strptime(log[self.logHeadRow.index('Time')], \
                     "%d.%m.%Y %H:%M:%S:%f")
         return -1
+
+
+    

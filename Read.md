@@ -2,8 +2,9 @@
 
 ## Depend on
 
-1. python 2.7 or more
+1. python 2.7.15
 2. openpyxl module
+3. collections module
 
 ## Synopsis
 
