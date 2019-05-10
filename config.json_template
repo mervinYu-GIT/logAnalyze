@@ -1,0 +1,88 @@
+{
+    "boot-up": {
+		"loading libfordhal.so": {
+			"process name": "Loading libfordhal.so",
+			"owner": "FORD",
+			"log point": {
+				"begin": "Current isPortraitLayout",
+				"end": "Current screenType"
+			}
+		},
+		"loading FHC": {
+			"process name": "Loading FHC",
+			"owner": "FORD",
+			"log point": {
+				"begin": "Current screenType",
+				"end": "create ThemeHelper success"
+			}
+		},
+		"loading libqtarp.so": {
+			"process name": "Loading libqtarp.so",
+			"owner": "QT/FORD",
+			"log point": {
+				"begin": "Performance marker : start to load main.qml !",
+				"end": "FordHALPlugin::initialize"
+			}
+		},
+		"FordHAL Init": {
+			"process name": "FordHAL Init",
+			"owner": "HMI",
+			"log point": {
+				"begin": "FordHALPlugin::initialize",
+				"end": "Performance marker : start to execute application !"
+			}
+		},
+		"loading QML": {
+			"process name": "Loading QML",
+			"owner": "HMI",
+			"log point": {
+				"begin": "Performance marker : start to execute application !",
+				"end": "Initializing SDK..."
+			}
+		},
+		"SDK Init": {
+			"process name": "SDK Init",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "Initializing SDK...",
+				"end": "QtArp object model created"
+			}
+		},
+		"Loading HMI": {
+			"process name": "Loading HMI",
+			"owner": "HMI/QTARP",
+			"log point": {
+				"begin": "QtArp object model created",
+				"end": "P12.R601.01 : End Marker for Navigation Rendering"
+			}
+		},
+        "total": {
+			"process name": "Total",
+			"owner": "",
+			"log point": {
+				"begin": "Dump envrionment variables",
+				"end": "P12.R601.01 : End Marker for Navigation Rendering"
+			}
+		}
+	},
+	"Routing": {
+		"Calculate Route": {
+			"process name": "Calculate Route",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "P12.R080.02 :Start marker for navigation route calculation",
+				"end": "P12.R080.02,P12.R081.02 :End marker for navigation route calculation"
+			}
+		}
+	},
+	"Search": {
+		"OneBox": {
+			"process name": "OneBox",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "P12.R083.01  : One box search : Start Marker:",
+				"end": "P12.R083.01  : One box search : End Marker:"
+			}
+		}
+	}
+} 
