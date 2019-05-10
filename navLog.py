@@ -106,13 +106,11 @@ class NavLogFile:
                 == logs[index+1][self.logHeadRow.index(item)]:
                 del logs[index]
             index += 1
-        # print(len(logs))
         return logs
 
 
     def searchTime(self, key, item, start=0, end=-1):
         """ search log time that we need. """
-        # results = []
         for log in self.logList[start:end]:
             if key in log[self.logHeadRow.index(item)]:
                 return datetime.strptime(log[self.logHeadRow.index('Time')], \

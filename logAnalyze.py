@@ -9,13 +9,16 @@ from argparse import ArgumentParser
 from navXlsx import NavXlsxFile
 from navLog import NavLogFile
 from openpyxl import Workbook
-import public_fun
 import collections
 
 
-class NavLogAnalyze:
-    pass
-
+def calcTime(beginTime, endTime):
+    """ calc deltatime """
+    try:
+        delta_time = endTime - beginTime
+        return delta_time
+    except:
+        print('endTime must bigger than beginTime.')
 
 
 if __name__ == "__main__":
@@ -97,7 +100,7 @@ if __name__ == "__main__":
                                 col_offset += 1
                                 continue
                             else:
-                                delta_time = public_fun.calcTime(beginTime, endTime)
+                                delta_time = calcTime(beginTime, endTime)
                                 xlsx_file.write_cell(origin_point['row'] + row_offset,\
                                     origin_point['col'] + col_offset, delta_time.total_seconds())
                                 col_offset += 1
