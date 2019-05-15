@@ -166,7 +166,7 @@ if __name__ == "__main__":
             if search_flag == 1:
                 start = json_data['Search']['OneBox']['log point']['begin'].encode('utf-8')
                 end = json_data['Search']['OneBox']['log point']['end'].encode('utf-8')
-                xlsx_file.multiple_rounds(log_file, route_cursor, start, end)
+                xlsx_file.multiple_rounds(log_file, search_cursor, start, end)
 
     xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
