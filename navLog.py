@@ -20,30 +20,52 @@ class NavLogFile:
 
         try:
             with open(self.inputFile, 'r') as fd:
-                self.logHeadRow = fd.readline()[:-1].split('|')       #first line is log head line
-                # continue read until catch the end
-                while   True:
-                    curLine = fd.readline()
-                    # print(type(curLine))   # debug unicode error.
-                    if  curLine == '':     # catch end! so we should break.
-                        break
-                    elif    curLine.isspace(): # white space! drop it and continue
-                        continue
-                    # if we have this key words below, do some special
-                    elif    curLine.find('halsystemsettingsadapter') != -1\
-                            or curLine.find('Sending:  origin') != -1\
-                            or curLine.find('Route request') != -1:
+                file_lines = fd.readlines()
+                if not file_lines:
+                    print('log file is empty!')
+                    sys.exit()
+                else:
+                    self.logHeadRow = file_lines[0][:-1].split('|')
+                    index = 0
+                    list_len = len(file_lines)
+                    while index < list_len - 1:        # touch the list end
+                        index += 1
+                        curLine = file_lines[index]    
+                        if index == list_len - 1:      # last list item, so we should break loop
+                            self.__listAppend(curLine)
+                            break
+                        if curLine.isspace():          # list item is space, just ignore it
+                            continue
+                        elif curLine.find('|') != -1:
                             while True:
-                                nextLine = fd.readline()
-                                if nextLine.isspace():
+                                index += 1
+                                nextLine = file_lines[index]
+                                if nextLine.find('|') != -1:
+                                    if index == list_len - 1:   # last list item
+                                        self.__listAppend(curLine)
+                                        self.__listAppend(nextLine)
+                                        break
+                                    else:
+                                        self.__listAppend(curLine)
+                                        curLine = nextLine
+                                        continue
+                                elif nextLine.isspace():
+                                    self.__listAppend(curLine)
                                     break
-                                curLine = curLine + nextLine
-                    self.logList.append(curLine.split('|'))
+                                else:
+                                    curLine += nextLine
+                                    continue
         except IOError:
             print(self.inputFile + " open faild!")
             sys.exit()
+
         self.begin_time = datetime.strptime(self.logList[0][1], "%d.%m.%Y %H:%M:%S:%f")
         self.end_time = datetime.strptime(self.logList[-1][1], "%d.%m.%Y %H:%M:%S:%f")
+
+        # write self.logList to debug file
+        # with open('./debug_file.txt', 'w') as file_db:
+        #     for log in self.logList:
+        #         file_db.write(str(log) + '\n')
 
         
     def itemParsing(self, item):
@@ -69,6 +91,10 @@ class NavLogFile:
                     logItemDict[item] = itemDict
 
         return logItemDict
+
+
+    def __listAppend(self, log):
+        self.logList.append(log.split('|'))
 
 
     def beginTime(self):
@@ -112,9 +138,15 @@ class NavLogFile:
     def searchTime(self, key, item, start=0, end=-1):
         """ search log time that we need. """
         for log in self.logList[start:end]:
-            if key in log[self.logHeadRow.index(item)]:
-                return datetime.strptime(log[self.logHeadRow.index('Time')], \
-                    "%d.%m.%Y %H:%M:%S:%f")
+            try:
+                if key in log[self.logHeadRow.index(item)]:
+                    return datetime.strptime(log[self.logHeadRow.index('Time')], \
+                        "%d.%m.%Y %H:%M:%S:%f")
+            except IndexError:
+                print('key = ' + key)
+                print('-------------------------------------------------------------------------------')
+                print(log)
+                sys.exit()
         return -1
 
 

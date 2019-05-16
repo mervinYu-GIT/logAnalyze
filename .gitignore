@@ -129,3 +129,4 @@ logdissect
 navigation-logs/
 *.json
 *.xlsx
+*.txt
