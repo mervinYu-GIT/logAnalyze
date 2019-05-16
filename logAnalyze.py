@@ -138,6 +138,8 @@ if __name__ == "__main__":
                                 endTime = nav_log_file.searchTime(v_2['end'].encode('utf-8'), 'Message')
 
                             if beginTime == -1 or endTime == -1:   # calc delta time
+                                xlsx_file.write_cell(origin_point['row'] + row_offset,\
+                                    origin_point['col'] + col_offset, 'Null')
                                 col_offset += 1
                                 continue
                             else:
