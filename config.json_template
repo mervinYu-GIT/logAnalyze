@@ -73,6 +73,14 @@
 				"begin": "P12.R080.02 :Start marker for navigation route calculation",
 				"end": "P12.R080.02,P12.R081.02 :End marker for navigation route calculation"
 			}
+		},
+		"Calculate Guidance": {
+			"process name": "Calculate Guidance",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "P12.R080.02 :Start marker for navigation guidance calculation",
+				"end": "P12.R080.02,P12.R081.02 :End marker for navigation guidance calculation"
+			}
 		}
 	},
 	"Search": {
