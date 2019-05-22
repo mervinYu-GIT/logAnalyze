@@ -61,7 +61,6 @@ if __name__ == "__main__":
                 log_files.append(f_p)
     if len(log_files) > 1:
         log_files = sort_strings_with_embedded_numbers(log_files)
-    print (log_files)
 
     if args.cfg:
         cfg_file = args.cfg
