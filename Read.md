@@ -20,7 +20,16 @@ navlog_file: This paramet must be needed in cmd line, it is that you want to ana
 
 --xlsx xlsx_file: optional parameters, specify the excle file that you want to save. default './navLog.xlsx'
 
-## How to use
+## How to 
+
+### install openpyxl
+
+1. open prompt/shell
+2. type "pip install openpyxl"
+3. exec python interpreter : python.exe
+4. type "import openpyxl", if nothing return, congratulation, you have done!
+
+### use
 
 1. Open prompt/shell in windows or linux
 2. Change the work path to loganalyze/

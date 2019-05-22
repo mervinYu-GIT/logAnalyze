@@ -4,6 +4,7 @@
 import sys
 from datetime import datetime
 import openpyxl
+from openpyxl.styles import  PatternFill
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import NamedStyle, Font, Alignment, Border, Side
@@ -66,6 +67,12 @@ class NavXlsxFile:
             print('create xlsx file faild!')
             sys.exit()
 
+
+    def setCellColor(self, sheet_name, row, col, color):
+        ws = self.work_book[sheet_name]
+        cell = ws.cell(row, col)
+        fill = PatternFill("solid", fgColor=color)
+        cell.fill = fill
 
     def multiple_rounds(self, log_file, origin_cursor, start, end):
         nav_log_file = NavLogFile(log_file)
