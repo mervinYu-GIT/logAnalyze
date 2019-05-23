@@ -25,10 +25,10 @@ def getFileList( p ):
     """ get file name that in dictory. """
     p = str( p )
     if p=="":
-            return [ ]
+        return [ ]
     p = p.replace( "/","\\")
     if p[ -1] != "\\":
-            p = p+"\\"
+        p = p+"\\"
     a = os.listdir( p )
     b = [ x   for x in a if os.path.isfile( p + x ) ]
     return b
@@ -85,8 +85,8 @@ if __name__ == "__main__":
         for log_file in log_files:
             nav_log_file = NavLogFile(log_file)
             sheet_name = path.basename(log_file).split('.')[0]
-            xlsx_file.create_sheet(sheet_name)
-            work_sheet = xlsx_file.select_sheet(sheet_name)
+            xlsx_file.createSheet(sheet_name)
+            work_sheet = xlsx_file.selectSheet(sheet_name)
             
             origin_point = {'row':1, 'col':1}
             route_cursor = {}
@@ -112,13 +112,13 @@ if __name__ == "__main__":
                 sheet_data_attr[first_key]["origin_point"]['col'] = origin_point['col']
                 sheet_data_attr[first_key]["origin_point"]['row'] = origin_point['row']
                 
-                xlsx_file.write_cell(origin_point['row'] ,origin_point['col'], k)
+                xlsx_file.writeCell(origin_point['row'] ,origin_point['col'], k)
                 col_offset += 1
                 row_offset += 1
                 index = 1
 
                 for k_1, v_1 in v.items():
-                    xlsx_file.write_cell(origin_point['row'] + row_offset,\
+                    xlsx_file.writeCell(origin_point['row'] + row_offset,\
                         origin_point['col'] - 1 + col_offset, index)
                     index += 1
                     for k_2, v_2 in v_1.items():
@@ -131,17 +131,17 @@ if __name__ == "__main__":
                             if v_2['begin'] == '':        # search begin time in file logs
                                 beginTimes = beginTimes.append(nav_log_file.beginTime())
                             else:
-                                begin_logs = nav_log_file.searchLog(v_2['begin'], "Message")
+                                begin_logs = nav_log_file.searchLogs(v_2['begin'], "Message")
                                 begin_times = nav_log_file.getLogsTime(begin_logs)
                                 if begin_logs:
                                     begin_times.sort()
                                 else:
                                     print(str(v_2['begin']) + ' is not found!')
                             
-                            if v_2['end'] == '':        # search begin time in file logs
+                            if v_2['end'] == '':        # search end time in file logs
                                 endTimes = endTimes.append(nav_log_file.endTime())
                             else:
-                                end_logs = nav_log_file.searchLog(v_2['end'], "Message")
+                                end_logs = nav_log_file.searchLogs(v_2['end'], "Message")
                                 end_times = nav_log_file.getLogsTime(end_logs)
                                 if end_logs:
                                     end_times.sort()
@@ -161,14 +161,14 @@ if __name__ == "__main__":
                                     if len(delta_times) > 1:
                                         # round_index += 1
                                         if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                                            xlsx_file.write_cell(origin_point['row'],\
+                                            xlsx_file.writeCell(origin_point['row'],\
                                                 origin_point['col'] + col_offset, "time cost(s)Round" + str(round_index))
                                     else:
                                         if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                                            xlsx_file.write_cell(origin_point['row'],\
+                                            xlsx_file.writeCell(origin_point['row'],\
                                                 origin_point['col'] + col_offset, "time cost(s)Round")
 
-                                    xlsx_file.write_cell(origin_point['row'] + row_offset,\
+                                    xlsx_file.writeCell(origin_point['row'] + row_offset,\
                                         origin_point['col'] + col_offset, delta_time.total_seconds())
                                     col_offset += 1
 
@@ -183,39 +183,33 @@ if __name__ == "__main__":
                                 sheet_data_attr[first_key]["avg_times"].append(None)
 
                         else:   # <if k_2 == 'log point'>
-                            xlsx_file.write_cell(origin_point['row'] + row_offset,\
+                            xlsx_file.writeCell(origin_point['row'] + row_offset,\
                                 origin_point['col'] + col_offset, v_2)
                                     
                             if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                                xlsx_file.write_cell(origin_point['row'],\
+                                xlsx_file.writeCell(origin_point['row'],\
                                     origin_point['col'] + col_offset, k_2)  
                             col_offset += 1
 
                         # get max col
                         if origin_point['col'] + col_offset > sheet_data_attr[first_key]['max_col']:
                             sheet_data_attr[first_key]['max_col'] = origin_point['col'] + col_offset
-
+                    # location cell
                     row_offset += 1
                     col_offset -= (len(v_1) + len(delta_times) - 1)
+                
                 origin_point['row'] = work_sheet.max_row + 3
 
-            # print(sheet_data_attr)
             # add average and total colum
             for k, v in sheet_data_attr.items():
                 index = 0
                 while index < len(v['avg_times']):
                     avg_time = v['avg_times'][index]
                     if avg_time:
-                        # if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                        #     xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
-                        #         'total_times')
-                        # xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'],\
-                        #      v['total_times'][index])
-
                         if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                            xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
+                            xlsx_file.writeCell(v['origin_point']['row'], v['max_col'],\
                                 'agv_times')
-                        xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'],\
+                        xlsx_file.writeCell(v['origin_point']['row'] + index + 1, v['max_col'],\
                             avg_time)
                         
                     index += 1

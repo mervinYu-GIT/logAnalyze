@@ -26,22 +26,24 @@ class NavXlsxFile:
         self.work_book.add_named_style(self.sheet_style)
 
 
-    def create_sheet(self, sheet_name):
-        return self.work_book.create_sheet(sheet_name, 0)
+    def createSheet(self, sheet_name):
+        work_sheet = self.work_book.create_sheet(sheet_name, 0)
+        self.selectSheet(sheet_name)
+        return work_sheet
     
 
-    def select_sheet(self, sheet_name):
+    def selectSheet(self, sheet_name):
         self.current_sheet = self.work_book[sheet_name]
         return self.current_sheet
 
     
-    def set_cursor(self, row, col):
+    def setCursor(self, row, col):
         if row >= 1 and col >= 1:
             self.cursor['row'] = row
             self.cursor['col'] = col
 
 
-    def write_cell(self, row, col, value):
+    def writeCell(self, row, col, value):
         work_sheet = self.current_sheet
         work_sheet.cell(row, col, value).style = self.sheet_style
 
@@ -74,23 +76,5 @@ class NavXlsxFile:
         fill = PatternFill("solid", fgColor=color)
         cell.fill = fill
 
-    def multiple_rounds(self, log_file, origin_cursor, start, end):
-        nav_log_file = NavLogFile(log_file)
-        searchs = nav_log_file.searchLogs("Message", start, end)
-        index = 2
-        round_index = 1
-        row = origin_cursor['row']
-        col = origin_cursor['col'] + 4
-        offset = 0
-        while index < len(searchs) - 1:
-            round_index += 1
-            self.write_cell(row, col + offset, 'time cost(s)Round' + str(round_index))
-            begin = datetime.strptime(searchs[index][nav_log_file.logHeadRow.index('Time')],\
-                "%d.%m.%Y %H:%M:%S:%f")
-            end = datetime.strptime(searchs[index+1][nav_log_file.logHeadRow.index('Time')],\
-                "%d.%m.%Y %H:%M:%S:%f")
-            delta_time = end - begin
-            self.write_cell(row + 1, col + offset, delta_time.total_seconds())
-            offset += 1
-            index += 2
+
 

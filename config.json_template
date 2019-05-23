@@ -4,16 +4,8 @@
 			"process name": "Loading libfordhal.so",
 			"owner": "FORD",
 			"log point": {
-				"begin": "Current isPortraitLayout",
-				"end": "Current screenType"
-			}
-		},
-		"loading FHC": {
-			"process name": "Loading FHC",
-			"owner": "FORD",
-			"log point": {
 				"begin": "Current screenType",
-				"end": "create ThemeHelper success"
+				"end": "Performance marker : start to load main.qml !"
 			}
 		},
 		"loading libqtarp.so": {
@@ -90,6 +82,48 @@
 			"log point": {
 				"begin": "P12.R083.01  : One box search : Start Marker:",
 				"end": "P12.R083.01  : One box search : End Marker:"
+			}
+		},
+		"Category": {
+			"process name": "Category",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "P12.R083.01  : Poi category search : Start Marker:",
+				"end": "P12.R083.01  : Poi category search : End Marker:"
+			}
+		},
+		"Suggestion": {
+			"process name": "Suggestion",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "QAutoSuggestionSearchFlowImpl send query",
+				"end": "QAutoSuggestionearchFlowImpl receive onAutoSuggestionSearchFinish result"
+			}
+		}
+	},
+	"MapDisplay": {
+		"ZoomInOut": {
+			"process name": "ZoomInOut",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "Nav Engine receive ZoomMap request, zoom action",
+				"end": "P12.R085.01 : End marker for zoom view change:"
+			}
+		},
+		"Orientation": {
+			"process name": "Orientation",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "P12.R085.01 : Start marker for map orientation",
+				"end": "P12.R085.01:End marker for map orientation"
+			}
+		},
+		"DaynightChange": {
+			"process name": "DaynightChange",
+			"owner": "TASDK/QTARP",
+			"log point": {
+				"begin": "P12.R085.01 : Start marker for day night view change:",
+				"end": "P12.R085.01 : End marker for day night view change:"
 			}
 		}
 	}
