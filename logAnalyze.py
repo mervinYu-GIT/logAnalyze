@@ -137,7 +137,6 @@ if __name__ == "__main__":
                                     begin_times.sort()
                                 else:
                                     print(str(v_2['begin']) + ' is not found!')
-                                #     # break
                             
                             if v_2['end'] == '':        # search begin time in file logs
                                 endTimes = endTimes.append(nav_log_file.endTime())
@@ -148,7 +147,6 @@ if __name__ == "__main__":
                                     end_times.sort()
                                 else:
                                     print(str(v_2['end']) + ' is not found!')
-                                #     # break
 
                             delta_times = nav_log_file.getDeltaTime(begin_times, end_times)
                             
@@ -201,7 +199,7 @@ if __name__ == "__main__":
                     col_offset -= (len(v_1) + len(delta_times) - 1)
                 origin_point['row'] = work_sheet.max_row + 3
 
-            print(sheet_data_attr)
+            # print(sheet_data_attr)
             # add average and total colum
             for k, v in sheet_data_attr.items():
                 index = 0
@@ -222,23 +220,6 @@ if __name__ == "__main__":
                         
                     index += 1
 
-
-
-
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
 
-
-
-# sheet_data_attr = {
-#     "item":{
-#         "origin_point" : {
-#             "row" : 0,
-#             "col" : 0
-#         },
-#         "max_col" : 0,
-#         "data_cnts" : [],
-#         "totals" : [],
-#         "avgs" : []
-#     }
-# }
