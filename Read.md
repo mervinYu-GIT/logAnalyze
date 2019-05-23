@@ -20,7 +20,7 @@ navlog_file: This paramet must be needed in cmd line, it is that you want to ana
 
 --xlsx xlsx_file: optional parameters, specify the excle file that you want to save. default './navLog.xlsx'
 
-## How to 
+## How to
 
 ### install openpyxl
 

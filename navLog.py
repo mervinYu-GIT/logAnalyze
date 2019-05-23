@@ -63,35 +63,30 @@ class NavLogFile:
         self.begin_time = datetime.strptime(self.logList[0][1], "%d.%m.%Y %H:%M:%S:%f")
         self.end_time = datetime.strptime(self.logList[-1][1], "%d.%m.%Y %H:%M:%S:%f")
 
-        # write self.logList to debug file
-        # with open('./debug_file.txt', 'w') as file_db:
-        #     for log in self.logList:
-        #         file_db.write(str(log) + '\n')
-
         
-    def itemParsing(self, item):
-        """ search logs that have same log item and sort it """
-        logItemDict = {}
-        itemDict = {
-            'count' : 0,
-            'list' : []
-        }
-        try:
-            itemIndex = self.logHeadRow.index(item)
-        except:
-            print('item invalid')
-            sys.exit()
-        else:
-            for log in self.logList:
-                if log[itemIndex] in logItemDict.keys():
-                    logItemDict[item]['list'].append(log)
-                    logItemDict[item]['count'] += 1
-                else:
-                    itemDict['count'] = 1
-                    itemDict['list'].append(log)
-                    logItemDict[item] = itemDict
+    # def itemParsing(self, item):
+    #     """ search logs that have same log item and sort it """
+    #     logItemDict = {}
+    #     itemDict = {
+    #         'count' : 0,
+    #         'list' : []
+    #     }
+    #     try:
+    #         itemIndex = self.logHeadRow.index(item)
+    #     except:
+    #         print('item invalid')
+    #         sys.exit()
+    #     else:
+    #         for log in self.logList:
+    #             if log[itemIndex] in logItemDict.keys():
+    #                 logItemDict[item]['list'].append(log)
+    #                 logItemDict[item]['count'] += 1
+    #             else:
+    #                 itemDict['count'] = 1
+    #                 itemDict['list'].append(log)
+    #                 logItemDict[item] = itemDict
 
-        return logItemDict
+    #     return logItemDict
 
 
     def __listAppend(self, log):
@@ -153,24 +148,7 @@ class NavLogFile:
 
     
     def getDeltaTime(self, begin_times, end_times):
-        # begin_times = []
-        # end_times = []
         delta_times = []
-
-        # begin_logs = self.searchLog(begin, item)
-        # if begin_logs:
-        #     begin_times = self.getLogsTime(begin_logs)
-        #     begin_times.sort()
-        # else:
-        #     print('begin log is None!')
-
-        # end_logs = self.searchLog(end, item)
-        # if end_logs:
-        #     end_times = self.getLogsTime(end_logs)
-        #     end_times.sort()
-        # else:
-        #     print('end log is None!')
-        
         bt_index = 0     # begin times index
         et_index = 0     # end times index
         while bt_index < len(begin_times) or et_index < len(end_times):
@@ -249,114 +227,91 @@ class TestNavLog(unittest.TestCase):
             mg_time = datetime.strptime(mg, "%d.%m.%Y %H:%M:%S:%f")
             results.append(mg_time)
 
-        # for time in times:
-        #     self.assertIn(time, results)
         self.assertListEqual(times, results)
 
 
 
-    # def test_getDeltaTime(self):
-    #     """ test navLog::getDeltaTime """
-        # begin = "P12.R080.02 :Start marker for navigation route calculation"
-        # end = "P12.R080.02,P12.R081.02 :End marker for navigation route calculation"
-        # ends = ["1.01.2000 12:04:10:556", "1.01.2000 12:04:31:272", "1.01.2000 12:04:43:975",
-    #               "1.01.2000 12:05:31:834", "1.01.2000 12:06:07:557", "1.01.2000 12:07:45:031",
-    #               "1.01.2000 12:08:14:355","1.01.2000 12:08:32:588","1.01.2000 12:09:07:160",
-    #               "1.01.2000 12:09:44:983","1.01.2000 12:10:52:662","1.01.2000 12:11:29:062",
-    #               "1.01.2000 12:11:58:786","1.01.2000 12:13:29:231","1.01.2000 12:15:27:338",
-    #               "1.01.2000 12:25:07:829","1.01.2000 12:25:18:620","1.01.2000 12:26:27:366",
-    #               "1.01.2000 12:26:41:088", "1.01.2000 12:28:54:558", "1.01.2000 12:29:07:479",
-    #               "1.01.2000 12:35:12:277", "1.01.2000 12:40:05:734", "1.01.2000 12:44:13:311"]
-    #     begins = ["1.01.2000 12:04:07:396", "1.01.2000 12:04:07:638", "1.01.2000 12:04:29:286",
-    #                 "1.01.2000 12:04:42:168", "1.01.2000 12:05:29:957", "1.01.2000 12:06:05:757",
-    #                 "1.01.2000 12:07:42:771", "1.01.2000 12:08:12:428", "1.01.2000 12:08:29:815",
-    #                 "1.01.2000 12:09:05:321", "1.01.2000 12:09:42:898", "1.01.2000 12:10:37:201",
-    #                 "1.01.2000 12:11:17:357", "1.01.2000 12:11:46:162", "1.01.2000 12:13:11:671",
-    #                 "1.01.2000 12:15:10:786", "1.01.2000 12:25:05:919", "1.01.2000 12:25:17:362",
-    #                 "1.01.2000 12:25:17:916", "1.01.2000 12:26:20:843", "1.01.2000 12:26:33:944",
-    #                 "1.01.2000 12:28:46:275", "1.01.2000 12:29:02:231", "1.01.2000 12:30:17:221",
-    #                 "1.01.2000 12:30:39:238", "1.01.2000 12:31:29:217", "1.01.2000 12:31:48:495",
-    #                 "1.01.2000 12:32:00:831", "1.01.2000 12:35:07:693", "1.01.2000 12:40:01:892",
-    #                 "1.01.2000 12:44:08:520"]
+    def test_getDeltaTime(self):
+        """ test navLog::getDeltaTime """
+        begin = self.test_cast_1
+        end = self.test_cast_2
+       
 
-    #     begins = ["1.01.2000 12:04:07:396", "1.01.2000 12:04:07:638", "1.01.2000 12:04:29:286","1.01.2000 12:04:42:168", "1.01.2000 12:05:29:957", "1.01.2000 12:06:05:757","1.01.2000 12:07:42:771", "1.01.2000 12:08:12:428", "1.01.2000 12:08:29:815","1.01.2000 12:09:05:321", "1.01.2000 12:09:42:898", "1.01.2000 12:10:37:201","1.01.2000 12:11:17:357", "1.01.2000 12:11:46:162", "1.01.2000 12:13:11:671","1.01.2000 12:15:10:786", "1.01.2000 12:25:05:919", "1.01.2000 12:25:17:362","1.01.2000 12:25:17:916", "1.01.2000 12:26:20:843", "1.01.2000 12:26:33:944", "1.01.2000 12:28:46:275", "1.01.2000 12:29:02:231", "1.01.2000 12:30:17:221","1.01.2000 12:30:39:238", "1.01.2000 12:31:29:217", "1.01.2000 12:31:48:495","1.01.2000 12:32:00:831", "1.01.2000 12:35:07:693", "1.01.2000 12:40:01:892", "1.01.2000 12:44:08:520"]
-    #     ends =   [                          "1.01.2000 12:04:10:556", "1.01.2000 12:04:31:272","1.01.2000 12:04:43:975", "1.01.2000 12:05:31:834", "1.01.2000 12:06:07:557", "1.01.2000 12:07:45:031","1.01.2000 12:08:14:355", "1.01.2000 12:08:32:588","1.01.2000 12:09:07:160", "1.01.2000 12:09:44:983", "1.01.2000 12:10:52:662","1.01.2000 12:11:29:062", "1.01.2000 12:11:58:786", "1.01.2000 12:13:29:231","1.01.2000 12:15:27:338", "1.01.2000 12:25:07:829", "1.01.2000 12:25:18:620",                          "1.01.2000 12:26:27:366", "1.01.2000 12:26:41:088", "1.01.2000 12:28:54:558", "1.01.2000 12:29:07:479",                                                                                                                                 "1.01.2000 12:35:12:277", "1.01.2000 12:40:05:734", "1.01.2000 12:44:13:311"]
+        dest_result = [ datetime.strptime("1.01.2000 12:04:10:556", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:04:07:638", "%d.%m.%Y %H:%M:%S:%f"),
 
-        # dest_result = [ datetime.strptime("1.01.2000 12:04:10:556", "%d.%m.%Y %H:%M:%S:%f") \
-        #                     - datetime.strptime("1.01.2000 12:04:07:638", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:04:31:272", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:04:29:286", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                 datetime.strptime("1.01.2000 12:04:31:272", "%d.%m.%Y %H:%M:%S:%f") \
-        #                     - datetime.strptime("1.01.2000 12:04:29:286", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:04:43:975", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:04:42:168", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:04:43:975", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:04:42:168", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:05:31:834", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:05:29:957", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:05:31:834", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:05:29:957", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:06:07:557", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:06:05:757", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:06:07:557", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:06:05:757", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:07:42:771", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:07:45:031", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:07:42:771", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:07:45:031", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:08:14:355", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:08:12:428", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:08:14:355", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:08:12:428", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:08:32:588", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:08:29:815", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:08:32:588", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:08:29:815", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:09:07:160", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:09:05:321", "%d.%m.%Y %H:%M:%S:%f") ,
 
-        #             datetime.strptime("1.01.2000 12:09:07:160", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:09:05:321", "%d.%m.%Y %H:%M:%S:%f") ,
+                        datetime.strptime("1.01.2000 12:09:44:983", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:09:42:898", "%d.%m.%Y %H:%M:%S:%f"), 
 
-        #             datetime.strptime("1.01.2000 12:09:44:983", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:09:42:898", "%d.%m.%Y %H:%M:%S:%f"), 
+                        datetime.strptime("1.01.2000 12:10:52:662", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:10:37:201", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #             datetime.strptime("1.01.2000 12:10:52:662", "%d.%m.%Y %H:%M:%S:%f") \
-        #                 - datetime.strptime("1.01.2000 12:10:37:201", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:11:29:062", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:11:17:357", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:11:29:062", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:11:17:357", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:11:58:786", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:11:46:162", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:11:58:786", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:11:46:162", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:13:29:231", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:13:11:671", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:13:29:231", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:13:11:671", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:15:27:338", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:15:10:786", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:15:27:338", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:15:10:786", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:25:07:829", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:25:05:919", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:25:07:829", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:25:05:919", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:25:18:620", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:25:17:362", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:25:18:620", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:25:17:362", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:26:27:366", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:26:20:843", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:26:27:366", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:26:20:843", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:26:41:088", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:26:33:944", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:26:41:088", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:26:33:944", "%d.%m.%Y %H:%M:%S:%f"),
-
-        #                datetime.strptime("1.01.2000 12:28:54:558", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:28:46:275", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:28:54:558", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:28:46:275", "%d.%m.%Y %H:%M:%S:%f"),
                        
-        #                 datetime.strptime("1.01.2000 12:29:07:479", "%d.%m.%Y %H:%M:%S:%f") \
-        #                     - datetime.strptime("1.01.2000 12:29:02:231", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:29:07:479", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:29:02:231", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                 datetime.strptime("1.01.2000 12:35:12:277", "%d.%m.%Y %H:%M:%S:%f") \
-        #                     - datetime.strptime("1.01.2000 12:35:07:693", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:35:12:277", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:35:07:693", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                 datetime.strptime("1.01.2000 12:40:05:734", "%d.%m.%Y %H:%M:%S:%f") \
-        #                     - datetime.strptime("1.01.2000 12:40:01:892", "%d.%m.%Y %H:%M:%S:%f"),
+                        datetime.strptime("1.01.2000 12:40:05:734", "%d.%m.%Y %H:%M:%S:%f") \
+                            - datetime.strptime("1.01.2000 12:40:01:892", "%d.%m.%Y %H:%M:%S:%f"),
 
-        #                datetime.strptime("1.01.2000 12:44:13:311", "%d.%m.%Y %H:%M:%S:%f") \
-        #                    - datetime.strptime("1.01.2000 12:44:08:520", "%d.%m.%Y %H:%M:%S:%f")
-        #                ]
-        # delta_times = self.test_nav_log.getDeltaTime('Message', begin, end)
+                        datetime.strptime("1.01.2000 12:44:13:311", "%d.%m.%Y %H:%M:%S:%f") \
+                           - datetime.strptime("1.01.2000 12:44:08:520", "%d.%m.%Y %H:%M:%S:%f")
+                       ]
+        delta_times = self.test_nav_log.getDeltaTime(begin, end)
 
-        # for time in delta_times:
-        #     self.assertIn(time, dest_result)
+        for time in delta_times:
+            self.assertIn(time, dest_result)
 
 # unittest.main()

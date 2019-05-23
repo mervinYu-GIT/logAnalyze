@@ -22,17 +22,19 @@ def calcTime(beginTime, endTime):
 
 
 def getFileList( p ):
-        p = str( p )
-        if p=="":
-              return [ ]
-        p = p.replace( "/","\\")
-        if p[ -1] != "\\":
-             p = p+"\\"
-        a = os.listdir( p )
-        b = [ x   for x in a if os.path.isfile( p + x ) ]
-        return b
+    """ get file name that in dictory. """
+    p = str( p )
+    if p=="":
+            return [ ]
+    p = p.replace( "/","\\")
+    if p[ -1] != "\\":
+            p = p+"\\"
+    a = os.listdir( p )
+    b = [ x   for x in a if os.path.isfile( p + x ) ]
+    return b
 
 
+# sort string containning numbers
 re_digits = re.compile(r'(\d+)')  
 def embedded_numbers(s):  
      pieces = re_digits.split(s)               # split num and asc  
@@ -200,16 +202,16 @@ if __name__ == "__main__":
                 while index < len(v['data_cnts']):
                     data_cnt = v['data_cnts'][index]
                     if data_cnt > 1:
-                        if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                            xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
-                                'total_times')
-                        xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'],\
-                             v['total_times'][index])
+                        # if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
+                        #     xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
+                        #         'total_times')
+                        # xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'],\
+                        #      v['total_times'][index])
 
                         if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                            xlsx_file.write_cell(v['origin_point']['row'], v['max_col'] + 1,\
+                            xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
                                 'agv_times')
-                        xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'] + 1,\
+                        xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'],\
                             v['avg_times'][index])
                         
                     index += 1
