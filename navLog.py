@@ -151,6 +151,10 @@ class NavLogFile:
         delta_times = []
         bt_index = 0     # begin times index
         et_index = 0     # end times index
+
+        if not begin_times or not end_times:
+            return delta_times
+
         while bt_index < len(begin_times) or et_index < len(end_times):
             bt_cur = begin_times[bt_index]
             et_cur = end_times[et_index]

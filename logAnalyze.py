@@ -132,52 +132,57 @@ if __name__ == "__main__":
                                 beginTimes = beginTimes.append(nav_log_file.beginTime())
                             else:
                                 begin_logs = nav_log_file.searchLog(v_2['begin'], "Message")
+                                begin_times = nav_log_file.getLogsTime(begin_logs)
                                 if begin_logs:
-                                    begin_times = nav_log_file.getLogsTime(begin_logs)
                                     begin_times.sort()
                                 else:
                                     print(str(v_2['begin']) + ' is not found!')
-                                    break
+                                #     # break
                             
                             if v_2['end'] == '':        # search begin time in file logs
                                 endTimes = endTimes.append(nav_log_file.endTime())
                             else:
                                 end_logs = nav_log_file.searchLog(v_2['end'], "Message")
+                                end_times = nav_log_file.getLogsTime(end_logs)
                                 if end_logs:
-                                    end_times = nav_log_file.getLogsTime(end_logs)
                                     end_times.sort()
                                 else:
                                     print(str(v_2['end']) + ' is not found!')
-                                    break
+                                #     # break
 
                             delta_times = nav_log_file.getDeltaTime(begin_times, end_times)
                             
                             round_index = 0
                             total_time = 0
-                            for delta_time in delta_times:
-                                round_index += 1
-                                total_time = total_time + delta_time.total_seconds()
-                                
-                                if len(delta_times) > 1:
-                                    # round_index += 1
-                                    if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                                        xlsx_file.write_cell(origin_point['row'],\
-                                            origin_point['col'] + col_offset, "time cost(s)Round" + str(round_index))
-                                else:
-                                    if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                                        xlsx_file.write_cell(origin_point['row'],\
-                                            origin_point['col'] + col_offset, "time cost(s)Round")
 
-                                xlsx_file.write_cell(origin_point['row'] + row_offset,\
-                                    origin_point['col'] + col_offset, delta_time.total_seconds())
-                                col_offset += 1
+                            if delta_times:
+                                for delta_time in delta_times:
+                                    round_index += 1
+                                    total_time = total_time + delta_time.total_seconds()
+                                    
+                                    if len(delta_times) > 1:
+                                        # round_index += 1
+                                        if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
+                                            xlsx_file.write_cell(origin_point['row'],\
+                                                origin_point['col'] + col_offset, "time cost(s)Round" + str(round_index))
+                                    else:
+                                        if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
+                                            xlsx_file.write_cell(origin_point['row'],\
+                                                origin_point['col'] + col_offset, "time cost(s)Round")
+
+                                    xlsx_file.write_cell(origin_point['row'] + row_offset,\
+                                        origin_point['col'] + col_offset, delta_time.total_seconds())
+                                    col_offset += 1
 
                             #save data count
                             sheet_data_attr[first_key]["data_cnts"].append(round_index)
                             # save total time
                             sheet_data_attr[first_key]["total_times"].append(total_time)
                             # save average time
-                            sheet_data_attr[first_key]["avg_times"].append(round(total_time/round_index, 3))
+                            if round_index > 0:
+                                sheet_data_attr[first_key]["avg_times"].append(round(total_time/round_index, 3))
+                            else:
+                                sheet_data_attr[first_key]["avg_times"].append(None)
 
                         else:   # <if k_2 == 'log point'>
                             xlsx_file.write_cell(origin_point['row'] + row_offset,\
@@ -196,12 +201,13 @@ if __name__ == "__main__":
                     col_offset -= (len(v_1) + len(delta_times) - 1)
                 origin_point['row'] = work_sheet.max_row + 3
 
+            print(sheet_data_attr)
             # add average and total colum
             for k, v in sheet_data_attr.items():
                 index = 0
-                while index < len(v['data_cnts']):
-                    data_cnt = v['data_cnts'][index]
-                    if data_cnt > 1:
+                while index < len(v['avg_times']):
+                    avg_time = v['avg_times'][index]
+                    if avg_time:
                         # if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
                         #     xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
                         #         'total_times')
@@ -212,7 +218,7 @@ if __name__ == "__main__":
                             xlsx_file.write_cell(v['origin_point']['row'], v['max_col'],\
                                 'agv_times')
                         xlsx_file.write_cell(v['origin_point']['row'] + index + 1, v['max_col'],\
-                            v['avg_times'][index])
+                            avg_time)
                         
                     index += 1
 
@@ -231,7 +237,7 @@ if __name__ == "__main__":
 #             "col" : 0
 #         },
 #         "max_col" : 0,
-#         "data_cnt" : 0,
+#         "data_cnts" : [],
 #         "totals" : [],
 #         "avgs" : []
 #     }
