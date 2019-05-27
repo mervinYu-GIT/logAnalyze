@@ -8,8 +8,8 @@ import re
 from datetime import datetime
 from argparse import ArgumentParser
 import collections
-from navXlsx import NavXlsxFile
-from navLog import NavLogFile
+from modules.navXlsx import NavXlsxFile
+from modules.navLog import NavLogFile
 
 
 def calcTime(beginTime, endTime):
