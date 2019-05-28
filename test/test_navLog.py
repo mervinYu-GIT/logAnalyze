@@ -1,13 +1,14 @@
 import sys, os
-sys.path.append(os.path.abspath("../modules"))
+sys.path.append(os.path.abspath("D:/workspace/repositories/telenav/loganalyze/"))
 from datetime import datetime
 import unittest
-from navLog import NavLogFile
+# import modules.navLog
+from modules.navLog import NavLogFile
 #---------------------------------------- Test ----------------------------------------#
 class TestNavLog(unittest.TestCase):
     """ test class navLog """
     def setUp(self):
-        test_file = "../../loganalysis/navigation-logs/navigation10.log"
+        test_file = "loganalysis/navigation-logs/navigation10.log"
         self.test_nav_log = NavLogFile(test_file)
         self.test_case_1 = "P12.R080.02 :Start marker for navigation route calculation"
         self.test_case_2 = "P12.R080.02,P12.R081.02 :End marker for navigation route calculation"
