@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+from os import path
 from datetime import datetime
 from itertools import izip
 import unittest
@@ -100,6 +101,45 @@ class NavLogFile:
         self.logList.append(log.split('|'))
 
 
+    def resultMatching(self, results1, results2):
+        result1_index = 0
+        result2_index = 0
+        log1 = 0
+        log2 = 0
+        results = []
+
+        if not results1 or not results2:
+            return results
+
+        while result1_index < len(results1) and result2_index < len(results2):
+            log1 = results1[result1_index]["log"]
+            log2 = results2[result2_index]["log"]
+            time1 = self.getLogTime(log1)
+            time2 = self.getLogTime(log2)
+
+            if time1 >= time2:
+                result2_index += 1
+                continue
+            else:
+                if result1_index != len(results1) - 1:
+                    next_log1 = results1[result1_index + 1]["log"]
+                    next_time1 = self.getLogTime(next_log1)
+                else:
+                    results.append(log1)
+                    results.append(log2)
+                    break
+                if next_time1 < time2:
+                    result2_index += 1
+                    continue
+                else:
+                    results.append(log1)
+                    results.append(log2)
+                    result1_index += 1
+                    result2_index += 1
+
+        return results
+
+
     def __logTimeMatching(self, times1, times2):
         t1_index = 0
         t2_index = 0
@@ -152,21 +192,33 @@ class NavLogFile:
         """ search log that we need. """
         logList = self.logList[:]
         results = []
-        result = {"index":0,"log":None}
         for log in self.logList[start:end]:
             if key in log[self.logHeadRow.index(item)]:
+                result = {"index":0,"log":None}
                 result["index"] = logList.index(log)
                 result["log"] = log
                 results.append(result)
-        return result
+        return results
+
+
+    def searchLog(self, key, item, start=0, end=-1):
+        for log in self.logList[start:end]:
+            if key in log[self.logHeadRow.index(item)]:
+                return log
+
 
     
-    def getLogsTime(self, logs):
+    def getLogsTime(self, search_results):
         times = []
-        for log in logs:
-            time = datetime.strptime(self.getLogItem(log, 'Time'), "%d.%m.%Y %H:%M:%S:%f")
+        for result in search_results:
+            time = datetime.strptime(self.getLogItem(result['log'], 'Time'), "%d.%m.%Y %H:%M:%S:%f")
             times.append(time)
         return times
+
+
+    def getLogTime(self, log):
+        time = datetime.strptime(self.getLogItem(log, 'Time'), "%d.%m.%Y %H:%M:%S:%f")
+        return time
 
 
     def getDeltaTime(self, begin_times, end_times):
@@ -180,7 +232,6 @@ class NavLogFile:
         return delta_times
 
 
-
     def searchTimes(self, key, item, start=0, end=-1):
         """ search log time that we need. """
         times = []
@@ -189,3 +240,130 @@ class NavLogFile:
                 times.append(datetime.strptime(log[self.logHeadRow.index('Time')], \
                     "%d.%m.%Y %H:%M:%S:%f"))
         return times
+
+
+
+
+class NavLog:
+    def __init__(self):
+        self.attribute = {"name":None, "begin_time":None, "end_time":None, "len":None, "items":[]}
+        self.load_file = ""
+        self.logs = []
+        # self.nav_logs = []    #[{"attribute":self.attribute, "file":self.load_file}, ...]
+
+
+    def loadLogFile(self, log_file, name=None):
+        if log_file[-4:] != '.log':
+            print("valid file!")
+            sys.exit()
+        else:
+            self.load_file = log_file
+
+        with open(log_file, 'r') as fd:
+            file_lines = fd.readlines()
+            if not file_lines:
+                print('log file is empty!')
+                sys.exit()
+            else:
+                logHeadRow = file_lines[0][:-1].split('|')
+                self.attribute["items"] = logHeadRow
+                index = 0
+                list_len = len(file_lines)
+                while index < list_len - 1:        # touch the list end
+                    index += 1
+                    curLine = file_lines[index]    
+                    if index == list_len - 1:      # last list item, so we should break loop
+                        self.__listAppend(curLine)
+                        break
+                    if curLine.isspace():          # list item is space, just ignore it
+                        continue
+                    elif curLine.find('|') == 3:
+                        while True:
+                            index += 1
+                            nextLine = file_lines[index]
+                            if nextLine.isspace():
+                                self.__listAppend(curLine)
+                                break
+                            elif nextLine.find('|') == 3:
+                                if index == list_len - 1:   # last list item
+                                    self.__listAppend(curLine)
+                                    self.__listAppend(nextLine)
+                                    break
+                                else:
+                                    self.__listAppend(curLine)
+                                    curLine = nextLine
+                                    continue
+                            else:
+                                curLine += nextLine
+                                continue
+        if name:
+            log_name = name
+        else:
+            log_name = path.basename(log_file).split('.')[0]
+        self.attribute["name"] = log_name
+        self.attribute["len"] = len(self.logs)
+        self.attribute["begin_time"] = datetime.strptime(self.logs[0][1], "%d.%m.%Y %H:%M:%S:%f")
+        self.attribute["end_time"] = datetime.strptime(self.logs[-1][1], "%d.%m.%Y %H:%M:%S:%f")
+
+    
+    def __listAppend(self, log):
+        self.logs.append(log.split('|'))
+
+    
+    def getBeginTime(self):
+        time = self.attribute["begin_time"]
+        return time
+
+
+    def getEndTime(self):
+        time = self.attribute["end_time"]
+        return time
+
+    
+    def getItemIndex(self, item):
+        index = self.attribute["items"].index(item)
+        return index
+
+
+    def getLog(self, key, item, start=0, end=-1):
+        logs = self.logs[start:end]
+        result = {"log":[], "index":0}
+        index = 0
+        for log in logs:
+            if key in log[self.attribute["items"].index(item)]:
+                result["log"] = log
+                result["index"] = index
+                return result
+            index += 1
+        return None
+
+ 
+    def getLogs(self, key, item, start=0, end=-1):
+        logs = self.logs[start:end]
+        results = []
+        index = 0
+
+        for log in logs:
+            if key in log[self.attribute["items"].index(item)]:
+                result = {"log":[], "index":0}
+                result["log"] = log
+                result["index"] = index
+                results.append(result)
+            index += 1
+
+        return results
+
+
+        
+
+
+
+                
+        
+
+
+
+
+
+
+    

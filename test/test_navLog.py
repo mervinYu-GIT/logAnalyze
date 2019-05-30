@@ -4,12 +4,16 @@ from datetime import datetime
 import unittest
 # import modules.navLog
 from modules.navLog import NavLogFile
+from modules.navLog import NavLog
 #---------------------------------------- Test ----------------------------------------#
 class TestNavLog(unittest.TestCase):
     """ test class navLog """
     def setUp(self):
         test_file = "loganalysis/navigation-logs/navigation10.log"
         self.test_nav_log = NavLogFile(test_file)
+        self.test_nav = NavLog()
+        self.test_nav.loadLogFile(test_file)
+
         self.test_case_1 = "P12.R080.02 :Start marker for navigation route calculation"
         self.test_case_2 = "P12.R080.02,P12.R081.02 :End marker for navigation route calculation"
         self.test_result_1 = ["1.01.2000 12:04:07:396", "1.01.2000 12:04:07:638", "1.01.2000 12:04:29:286",
@@ -36,29 +40,49 @@ class TestNavLog(unittest.TestCase):
         self.test_result = [3,4,6,7,9,10,14,15]
 
 
-    def test_searchLogs(self):
+    def test_getLog(self):
         key = self.test_case_1
-        item = 'Message'
-        result = self.test_result_1
-        times = []
+        test_expect_results = self.test_result_1
+        result = self.test_nav.getLog(key, "Message")
 
-        logs = self.test_nav_log.searchLogs(key, item)
-        for log in logs:
-            times.append(log[1])
+        self.assertIn(result["log"][self.test_nav.attribute["items"].index("Time")], test_expect_results)
 
-        self.assertListEqual(times, result)
+    
+    def test_getLogs(self):
+        key = self.test_case_1
+        test_expect_results = self.test_result_1
+        results = self.test_nav.getLogs(key, "Message")
+        result_times = []
+        for result in results:
+            time = result["log"][self.test_nav.getItemIndex("Time")]
+            result_times.append(time)
+
+        self.assertListEqual(result_times, test_expect_results)
 
 
-    def test_getLogsTime(self):
-        results = []
-        key = self.test_case_2
-        logs = self.test_nav_log.searchLogs(key, "Message")
-        times = self.test_nav_log.getLogsTime(logs)
-        for mg in self.test_result_2:
-            mg_time = datetime.strptime(mg, "%d.%m.%Y %H:%M:%S:%f")
-            results.append(mg_time)
+    # def test_searchLogs(self):
+    #     key = self.test_case_1
+    #     item = 'Message'
+    #     test_result = self.test_result_1
+    #     times = []
 
-        self.assertListEqual(times, results)
+    #     results = self.test_nav_log.searchLogs(key, item)
+    #     for result in results:
+    #         times.append(result['log'][1])
+
+    #     self.assertListEqual(times, test_result)
+
+
+    # def test_getLogsTime(self):
+    #     test_results = []
+    #     key = self.test_case_2
+    #     search_results = self.test_nav_log.searchLogs(key, "Message")
+    #     times = self.test_nav_log.getLogsTime(search_results)
+    #     for mg in self.test_result_2:
+    #         mg_time = datetime.strptime(mg, "%d.%m.%Y %H:%M:%S:%f")
+    #         test_results.append(mg_time)
+
+    #     self.assertListEqual(times, test_results)
 
 
     # def test_logTimeMatching(self):
@@ -71,15 +95,14 @@ class TestNavLog(unittest.TestCase):
     #     self.assertListEqual(test_result, result)
 
     
-    def test_getDeltaTime(self):
-        begin_times = self.test_times1
-        end_times = self.test_times2
-        dest_results = [1,1,1,1]
+    # def test_getDeltaTime(self):
+    #     begin_times = self.test_times1
+    #     end_times = self.test_times2
+    #     dest_results = [1,1,1,1]
 
-        results = self.test_nav_log.getDeltaTime(begin_times, end_times)
+    #     results = self.test_nav_log.getDeltaTime(begin_times, end_times)
 
-        self.assertLessEqual(dest_results, results)
-
+    #     self.assertLessEqual(dest_results, results)
 
 
 unittest.main()
