@@ -265,15 +265,16 @@ class NavLog:
                 print('log file is empty!')
                 sys.exit()
             else:
-                logHeadRow = file_lines[0][:-1].split('|')
-                self.attribute["items"] = logHeadRow
+                # logHeadRow = file_lines[0][:-1].split('|')
+                # self.attribute["items"] = logHeadRow
                 index = 0
                 list_len = len(file_lines)
                 while index < list_len - 1:        # touch the list end
                     index += 1
                     curLine = file_lines[index]    
                     if index == list_len - 1:      # last list item, so we should break loop
-                        self.__listAppend(curLine)
+                        # self.__listAppend(curLine)
+                        self.logs.append(curLine)
                         break
                     if curLine.isspace():          # list item is space, just ignore it
                         continue
@@ -282,15 +283,19 @@ class NavLog:
                             index += 1
                             nextLine = file_lines[index]
                             if nextLine.isspace():
-                                self.__listAppend(curLine)
+                                # self.__listAppend(curLine)
+                                self.logs.append(curLine)
                                 break
                             elif nextLine.find('|') == 3:
                                 if index == list_len - 1:   # last list item
-                                    self.__listAppend(curLine)
-                                    self.__listAppend(nextLine)
+                                    # self.__listAppend(curLine)
+                                    # self.__listAppend(nextLine)
+                                    self.logs.append(curLine)
+                                    self.logs.append(curLine)
                                     break
                                 else:
-                                    self.__listAppend(curLine)
+                                    # self.__listAppend(curLine)
+                                    self.logs.append(curLine)
                                     curLine = nextLine
                                     continue
                             else:
@@ -302,12 +307,8 @@ class NavLog:
             log_name = path.basename(log_file).split('.')[0]
         self.attribute["name"] = log_name
         self.attribute["len"] = len(self.logs)
-        self.attribute["begin_time"] = datetime.strptime(self.logs[0][1], "%d.%m.%Y %H:%M:%S:%f")
-        self.attribute["end_time"] = datetime.strptime(self.logs[-1][1], "%d.%m.%Y %H:%M:%S:%f")
-
-    
-    def __listAppend(self, log):
-        self.logs.append(log.split('|'))
+        self.attribute["begin_time"] = datetime.strptime(self.logs[0].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
+        self.attribute["end_time"] = datetime.strptime(self.logs[-1].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
 
     
     def getBeginTime(self):
@@ -319,37 +320,35 @@ class NavLog:
         time = self.attribute["end_time"]
         return time
 
-    
-    def getItemIndex(self, item):
-        index = self.attribute["items"].index(item)
-        return index
 
-
-    def getLog(self, key, item, start=0, end=-1):
+    def getLog(self, key, start=0, end=-1):
+        """ return log """
         logs = self.logs[start:end]
-        result = {"log":[], "index":0}
-        index = 0
+        result = {}
         for log in logs:
-            if key in log[self.attribute["items"].index(item)]:
-                result["log"] = log
-                result["index"] = index
-                return result
-            index += 1
-        return None
+            if key in log:
+                log_split = log.split("|")
+                result["message"] = log_split[-1]
+                result["index"] = logs.index(log) + start
+                result["time"] = datetime.strptime(log_split[1], "%d.%m.%Y %H:%M:%S:%f")
+                break
+
+        return result
 
  
-    def getLogs(self, key, item, start=0, end=-1):
-        logs = self.logs[start:end]
+    def getLogs(self, key):
+        """ return log and log index """
+        logs = self.logs[:]
         results = []
-        index = 0
 
         for log in logs:
-            if key in log[self.attribute["items"].index(item)]:
-                result = {"log":[], "index":0}
-                result["log"] = log
-                result["index"] = index
+            if key in log:
+                result = {"message":"", "index":0, "time":None}
+                log_split = log.split("|")
+                result["message"] = log_split[-1]
+                result["index"] = logs.index(log)
+                result["time"] = datetime.strptime(log_split[1], "%d.%m.%Y %H:%M:%S:%f")
                 results.append(result)
-            index += 1
 
         return results
 
