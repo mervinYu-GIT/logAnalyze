@@ -310,6 +310,10 @@ class NavLog:
         self.attribute["begin_time"] = datetime.strptime(self.logs[0].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
         self.attribute["end_time"] = datetime.strptime(self.logs[-1].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
 
+
+    def selfLogs(self, start = 0, end = -1):
+        return self.logs[start : end]
+
     
     def getBeginTime(self):
         time = self.attribute["begin_time"]

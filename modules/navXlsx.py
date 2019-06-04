@@ -50,15 +50,18 @@ class NavXlsxFile:
 
     def resize(self, sheet_name):
         """ resize sheet unit automotive """
-        for col in range(self.current_sheet.max_column):
-            col_width = 0
-            for row in range(self.current_sheet.max_row):
-                cell_value = self.current_sheet.cell(row+1, col+1).value
-                if len(str(cell_value)) > col_width:
-                    col_width = len(str(cell_value))
+        try:
+            for col in range(self.current_sheet.max_column):
+                col_width = 0
+                for row in range(self.current_sheet.max_row):
+                    cell_value = self.current_sheet.cell(row+1, col+1).value
+                    if len(str(cell_value)) > col_width:
+                        col_width = len(str(cell_value))
 
-            self.current_sheet.column_dimensions[get_column_letter(col+1)].width\
-                = float(col_width + 3.0)
+                self.current_sheet.column_dimensions[get_column_letter(col+1)].width\
+                    = float(col_width + 3.0)
+        except TypeError:
+            print(self.current_sheet.max_column)
 
 
     def create(self, file_path):

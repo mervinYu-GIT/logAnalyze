@@ -84,7 +84,6 @@ if __name__ == "__main__":
             sys.exit()
 
         for log_file in log_files:
-            # nav_log_file = NavLogFile(log_file)
             log_file_name = path.basename(log_file).split('.')[0]
             nav_log.loadLogFile(log_file, log_file_name)
             sheet_name = log_file_name
@@ -102,526 +101,77 @@ if __name__ == "__main__":
 
             for k, v in json_data.items():
                 k = k.encode("utf-8")
-                # print("k = " + k)
-                # print(type(k))
                 if k == "boot-up":
-                    # print('in ' + k)
+                    pass
                     boot_up = {}
-                    boot_up["row"] = 1
+                    if work_sheet.max_row == 1:
+                        boot_up["row"] = work_sheet.max_row
+                    else:
+                        boot_up["row"] = work_sheet.max_row + 3
 
+                    row_offset = 0
                     index = 0
-                    # row_offset = 0
                     xlsx_file.writeCell(boot_up["row"] , 1, k)
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
-                        # print("k1 = " + k_1)
-                        if k_1 == "loading libfordhal.so":
-                            # print("in " + k_1)
-                            index += 1
-                            libfordhal_row = boot_up["row"] + index
-                            xlsx_file.writeCell(libfordhal_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(libfordhal_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(libfordhal_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(libfordhal_row, \
-                                            col_offset, delta_time.total_seconds())                          
-                        elif k_1 == "loading FHC":
-                            # print("in " + k_1)
-                            index += 1
-                            fhc_row = boot_up["row"] + index
-                            xlsx_file.writeCell(fhc_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(fhc_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(fhc_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(fhc_row, \
-                                            col_offset, delta_time.total_seconds())
-                        elif k_1 == "loading libqtarp.so":
-                            # print("in " + k_1)
-                            index += 1
-                            qtarp_row = boot_up["row"] + index
-                            xlsx_file.writeCell(qtarp_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(qtarp_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(qtarp_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(qtarp_row, \
-                                            col_offset, delta_time.total_seconds())
-                        elif k_1 == "FordHAL Init":
-                            # print("in " + k_1)
-                            index += 1
-                            ford_init_row = boot_up["row"] + index
-                            xlsx_file.writeCell(ford_init_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(ford_init_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(ford_init_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(ford_init_row, \
-                                            col_offset, delta_time.total_seconds())
-                        elif k_1 == "loading QML":
-                            # print("in " + k_1)
-                            index += 1
-                            loading_qml_row = boot_up["row"] + index
-                            xlsx_file.writeCell(loading_qml_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(loading_qml_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(loading_qml_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(loading_qml_row, \
-                                            col_offset, delta_time.total_seconds())
-                            pass
-                        elif k_1 == "SDK Init":
-                            # print("in " + k_1)
-                            index += 1
-                            sdk_init_row = boot_up["row"] + index
-                            xlsx_file.writeCell(sdk_init_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(sdk_init_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(sdk_init_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(sdk_init_row, \
-                                            col_offset, delta_time.total_seconds())
-                        elif k_1 == "Loading HMI":   
-                            # print("in " + k_1)
-                            index += 1
-                            loading_hmi_row = boot_up["row"] + index
-                            xlsx_file.writeCell(loading_hmi_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(loading_hmi_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(loading_hmi_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(loading_hmi_row, \
-                                            col_offset, delta_time.total_seconds())
-                        elif k_1 == "total":
-                            # print("in " + k_1)
-                            index += 1
-                            total_row = boot_up["row"] + index
-                            xlsx_file.writeCell(total_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(total_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "owner":
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, k_2)
-
-                                    xlsx_file.writeCell(total_row, \
-                                        col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_time = None
-                                    end_time = None
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-
-                                    if begin:
-                                        begin_result = nav_log.getLog(begin)
-                                        if begin_result:
-                                            # time_str = begin_result["log"].split("|")[1]
-                                            begin_time = begin_result["time"]
-                                    else:
-                                        begin_time = nav_log.getBeginTime()
-                                    
-                                    if end:
-                                        end_result = nav_log.getLog(end)
-                                        if end_result:
-                                            # time_str = end_result["log"].split("|")[1]
-                                            end_time = end_result["time"]
-                                    else:
-                                        end_time = nav_log.getEndTime()
-                                    
-                                    col_offset += 1
-                                    if work_sheet.cell(boot_up["row"], \
-                                         col_offset).value == None:
-                                        xlsx_file.writeCell(boot_up["row"], \
-                                            col_offset, "time cost")
-
-                                    if begin_time and end_time:
-                                        delta_time = end_time - begin_time
-
-                                        xlsx_file.writeCell(total_row, \
-                                            col_offset, delta_time.total_seconds())
-                       
+                        row_offset += 1
+                        row = boot_up["row"] + row_offset
+
+                        index += 1
+                        xlsx_file.writeCell(row, 1, index)
+
+                        col_offset = 1
+                        for k_2, v_2 in v_1.items():
+                            col_offset += 1
+                            k_2 = k_2.encode("utf-8")
+                            if k_2 == "process name":
+                                if work_sheet.cell(boot_up["row"], \
+                                        col_offset).value == None:
+                                    xlsx_file.writeCell(boot_up["row"], \
+                                        col_offset, k_2)
+
+                                xlsx_file.writeCell(row, col_offset, v_2)
+
+                            elif k_2 == "owner":
+                                if work_sheet.cell(boot_up["row"], col_offset).value == None:
+                                    xlsx_file.writeCell(boot_up["row"], col_offset, k_2)
+
+                                xlsx_file.writeCell(row, col_offset, v_2)
+
+                            elif k_2 == "log point":
+                                begin_time = None
+                                end_time = None
+                                begin = v_2["begin"].encode("utf-8")
+                                end = v_2["end"].encode("utf-8")
+
+
+                                if begin:
+                                    begin_result = nav_log.getLog(begin)
+                                    if begin_result:
+                                        begin_time = begin_result["time"]
+                                else:
+                                    begin_time = nav_log.getBeginTime()
+                                
+                                if end:
+                                    end_result = nav_log.getLog(end)
+                                    if end_result:
+                                        end_time = end_result["time"]
+                                else:
+                                    end_time = nav_log.getEndTime()
+                                
+                                if work_sheet.cell(boot_up["row"], \
+                                        col_offset).value == None:
+                                    xlsx_file.writeCell(boot_up["row"], \
+                                        col_offset, "time cost")
+
+                                if begin_time and end_time:
+                                    delta_time = end_time - begin_time
+
+                                    xlsx_file.writeCell(row, \
+                                        col_offset, delta_time.total_seconds())                          
+          
                 elif k == "Routing":
+                    pass
                     routing = {}  # routing message
                     routing["row"] = 0
                     routing["max_col"] = 0
@@ -644,19 +194,18 @@ if __name__ == "__main__":
                     routing["Calculate Guidance"]["process name"] = ""
                     routing["Calculate Guidance"]["owner"] = ""
 
-                    # origin_point["row"] = work_sheet.max_row + 3
-                    routing["row"] = work_sheet.max_row + 3
+                    if work_sheet.max_row == 1:
+                        routing["row"] = work_sheet.max_row
+                    else:
+                        routing["row"] = work_sheet.max_row + 3
+
                     row_offset = 0
                     index = 0
-                    # col_offset = 0 
-                    # routing_avg = {"max_col":0}
-
                     xlsx_file.writeCell(routing["row"] , 1, k)
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
 
                         if k_1 == "Calculate Route":
-                            # routing["Calculate Route"] = routing["row"] + row_offset
                             row_offset += 1
                             routing["Calculate Route"]["row"] = routing["row"] + row_offset
                             cal_route_row = routing["Calculate Route"]["row"]
@@ -784,34 +333,13 @@ if __name__ == "__main__":
                                         routing["Calculate Route"]["matchs"] = matchs
               
                         elif k_1 == "Calculate Guidance":
-                            # row_offset += 1
-                            # routing["Calculate Guidance"]["row"] = routing["row"] + row_offset
-                            # cal_guidance_row = routing["Calculate Guidance"]["row"]
-                            
-                            # index += 1
-                            # xlsx_file.writeCell(cal_guidance_row, 1, index)
-
-                            # col_offset = 1
                             for k_2, v_2 in v_1.items():
                                 k_2 = k_2.encode("utf-8")
                                 if k_2 == "process name":    # ----------process name --------------    
                                     routing["Calculate Guidance"]["process name"] = v_2.encode("utf-8")            
-                                    # col_offset += 1
-                                    # if work_sheet.cell(routing["row"], col_offset).value == None:
-                                    #     xlsx_file.writeCell(routing["row"], col_offset, k_2)
-
-                                    # xlsx_file.writeCell(cal_guidance_row, \
-                                    #      col_offset, v_2)
 
                                 elif k_2 == "owner":        # -----------owner----------------------
                                     routing["Calculate Guidance"]["owner"] = v_2.encode("utf-8")            
-
-                                    # col_offset += 1
-                                    # if work_sheet.cell(routing["row"], col_offset).value == None:
-                                    #     xlsx_file.writeCell(routing["row"], col_offset, k_2)
-
-                                    # xlsx_file.writeCell(cal_guidance_row, \
-                                    #      col_offset, v_2)
 
                                 elif k_2 == "log point":
                                     begin_logs = []
@@ -883,9 +411,7 @@ if __name__ == "__main__":
                                 guidance_match["name"] = cur_route_match["name"]
                                 break
                             route_match_index += 1
-                    
-                    # print(cal_route)
-                    # print(cal_guidance)
+
                     # groups
                     cal_route_matchs = cal_route["matchs"]
                     cal_guidance_matchs = cal_guidance["matchs"]
@@ -907,27 +433,6 @@ if __name__ == "__main__":
                             guidance_group[match["name"]].append(match)
 
                     
-
-#########################  debug ##########################################
-                    # print(route_group)
-                    print("-------------------------------------------------------------------")
-                    for k,v in route_group.items():
-                        print(k)
-                        for member in v:
-                            print(member["index"])
-                        print("--------------------------------")
-                    # print(guidance_group)
-                    print("--------------------------------------------------------------------")
-                    for k,v in guidance_group.items():
-                        print(k)
-                        for member in v:
-                            print(member["index"])
-                        print("--------------------------------")
-                    print("-------------------------------------------------------------------")
-                    print("cal_route_row: " + str(cal_route_row))
-                    # print("cal_guidance_row: " + str(cal_guidance_row))
-                    print("col_offset: " + str(col_offset))
-######################### debug ###########################################
                     col_offset += 1
                     group_col = col_offset
                     route_row_offset = 0
@@ -978,9 +483,6 @@ if __name__ == "__main__":
                         if routing["max_col"] < group_col + guidance_index:
                             routing["max_col"] = group_col + guidance_index  
 
-################################################# debug ################################
-                    print(routing["max_col"])  
-################################################# debug ################################
                     agv_col = routing["max_col"] + 1
                     agv_row_offset = 0
                     xlsx_file.writeCell(routing["row"], agv_col, "agv")
@@ -1009,146 +511,166 @@ if __name__ == "__main__":
 
                    
                 elif k == "Search":
+                    search = {}
+                    search["row"] = 0
+                    search["max_col"] = 0
+                    search["object"] = collections.OrderedDict()
+
+                    if work_sheet.max_row == 1:
+                        search["row"] = work_sheet.max_row
+                    else:
+                        search["row"] = work_sheet.max_row + 3
                     pass
+
+                    row_offset = 0
+                    index = 0
+                    xlsx_file.writeCell(search["row"] , 1, k)  # write cell "search"
+
+                    for k_1, v_1 in v.items():
+                        search["object"][k_1] = {}
+                        search["object"][k_1] = collections.OrderedDict()
+                        search["object"][k_1]["group"] = collections.OrderedDict()
+                        search["object"][k_1]["group"]["total"] = {}
+                        search["object"][k_1]["group"]["total"]["matchs"] = []
+                        search["object"][k_1]["group"]["total"]["agv"] = 0
+                        cur_col = 1
+                        k_1 = k_1.encode("utf-8")
+                        row_offset += 1
+                        index += 1
+                        xlsx_file.writeCell(search["row"] + row_offset, 1, index)
+
+                        for k_2, v_2 in v_1.items():
+                            k_2 = k_2.encode("utf-8")
+                            cur_col += 1
                             
-#----------------------------------------------------------------------------------#                    
-                # row_offset = 0
-                # col_offset = 0 
-                
-                # # set list default
-                # first_key = k.encode('utf-8')
-                # sheet_data_attr.setdefault(first_key, {})
-                # sheet_data_attr[first_key].setdefault('max_col', 0)
-                # sheet_data_attr[first_key].setdefault('data_cnts', [])
-                # sheet_data_attr[first_key].setdefault('total_times', [])
-                # sheet_data_attr[first_key].setdefault('avg_times', [])
-                # sheet_data_attr[first_key].setdefault('origin_point', {})
-                # sheet_data_attr[first_key]["origin_point"]['col'] = origin_point['col']
-                # sheet_data_attr[first_key]["origin_point"]['row'] = origin_point['row']
-                
-                # xlsx_file.writeCell(origin_point['row'] ,origin_point['col'], k)
-                # col_offset += 1
-                # row_offset += 1
-                # index = 1
+                            if k_2 == "process name":
+                                if work_sheet.cell(search["row"], cur_col).value == None:
+                                        xlsx_file.writeCell(search["row"], cur_col, k_2)
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col, v_2)
 
-                # for k_1, v_1 in v.items():
-                #     xlsx_file.writeCell(origin_point['row'] + row_offset,\
-                #         origin_point['col'] - 1 + col_offset, index)
-                #     index += 1
-                #     for k_2, v_2 in v_1.items():
-                #         beginTimes = []
-                #         endTimes = []
-                #         delta_times = []
+                                pass
+                            elif k_2 == "owner":
+                                if work_sheet.cell(search["row"], cur_col).value == None:
+                                        xlsx_file.writeCell(search["row"], cur_col, k_2)
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col, v_2)
 
-                #         if k_2 == 'log point':
-                #             match_logs1 = []
-                #             match_logs2 = []
-                #             if v_2['begin'] == '':        # search begin time in file logs
-                #                 beginTimes.append(nav_log_file.beginTime())
-                #             else:
-                #                 search_begin_results = nav_log_file.searchLogs(v_2['begin'], "Message")
+                                pass
+                            elif k_2 == "log point":
+                                begin_logs = []
+                                end_logs = []
+                                begin = v_2["begin"].encode("utf_8")
+                                end = v_2["end"].encode("utf-8")
 
-                #                 # begin_times = nav_log_file.getLogsTime(search_results)
-                #                 if beginTimes:
-                #                     beginTimes.sort()
-                #                 else:
-                #                     print(str(v_2['begin']) + ' is not found!')
-                            
-                #             if v_2['end'] == '':        # search end time in file logs
-                #                 endTimes.append(nav_log_file.endTime())
-                #             else:
-                #                 search_end_results = nav_log_file.searchLogs(v_2['end'], "Message")
-
-                #                 # end_times = nav_log_file.getLogsTime(search_results)
-                #                 if endTimes:
-                #                     endTimes.sort()
-                #                 else:
-                #                     print(str(v_2['end']) + ' is not found!')
-                #             match_results = nav_log_file.resultMatching(search_begin_results, search_end_results)
-                #             for match_result in match_results:
-                #                 key = "Sending:  origin"
-                #                 log = nav_log_file.searchLog(key, "Message", match_result["index"])
-                #                 if log:
-
-                #                     pass
-                #                 else:
-                #                     key = "Route request:"
-                #                     log = nav_log_file.searchLog(key, "Message", match_result["index"])
-                #                     if log:
-                #                         pass
-                #                     else:
-                #                         continue
+                                if begin:
+                                        begin_logs = nav_log.getLogs(begin)
+                                else:
+                                    continue
                                 
-                #             delta_times = nav_log_file.getDeltaTime(begin_times, end_times)
-                            
-                #             round_index = 0
-                #             total_time = 0
+                                if end:
+                                    end_logs = nav_log.getLogs(end)
+                                else:
+                                    continue
 
-                #             if delta_times:
-                #                 for delta_time in delta_times:
-                #                     round_index += 1
-                #                     total_time = total_time + delta_time.total_seconds()
+                                if begin_logs and end_logs:   # get total matchs
+                                    index1 = 0
+                                    index2 = 0
                                     
-                #                     if len(delta_times) > 1:
-                #                         # round_index += 1
-                #                         if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                #                             xlsx_file.writeCell(origin_point['row'],\
-                #                                 origin_point['col'] + col_offset, "time cost(s)Round" + str(round_index))
-                #                     else:
-                #                         if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                #                             xlsx_file.writeCell(origin_point['row'],\
-                #                                 origin_point['col'] + col_offset, "time cost(s)Round")
+                                    while index1 < len(begin_logs) and index2 < len(end_logs):
+                                        match = {}
+                                        match["index"] = 0
+                                        match["begin_index"] = 0
+                                        match["end_index"] = 0
+                                        match["delta_time"] = None
+                                        match["begin_message"] = ""
+                                        match["end_message"] = ""
+                                        begin_index = begin_logs[index1]["index"]
+                                        end_index = end_logs[index2]["index"]
 
-                #                     xlsx_file.writeCell(origin_point['row'] + row_offset,\
-                #                         origin_point['col'] + col_offset, delta_time.total_seconds())
-                #                     col_offset += 1
+                                        if begin_index >= end_index:
+                                            index2 += 1
+                                            continue
+                                        else:
+                                            if index1 != len(begin_logs) - 1:
+                                                next_begin_index = begin_logs[index1 + 1]["index"]
+                                            else:
+                                                match["begin_index"] = begin_logs[index1]["index"]
+                                                match["end_index"] = end_logs[index2]["index"]
+                                                match["index"] = begin_logs[index1]["index"]          # get match "index"
+                                                delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
+                                                match["delta_time"] = round(delta_time.total_seconds(), 3)     # get match "delta_time"
+                        
+                                                search["object"][k_1]["group"]["total"]["matchs"].append(match)
+                                                break
+                                            if next_begin_index < end_index:
+                                                index1 += 1
+                                                continue
+                                            else:
+                                                match["begin_index"] = begin_logs[index1]["index"]
+                                                match["end_index"] = end_logs[index2]["index"]
+                                                match["index"] = begin_logs[index1]["index"]          # get match "index"
+                                                delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
+                                                match["delta_time"] = round(delta_time.total_seconds(), 3)      # get match "delta_time"
 
-                #             #save data count
-                #             sheet_data_attr[first_key]["data_cnts"].append(round_index)
-                #             # save total time
-                #             sheet_data_attr[first_key]["total_times"].append(total_time)
-                #             # save average time
-                #             if round_index > 0:
-                #                 sheet_data_attr[first_key]["avg_times"].append(round(total_time/round_index, 3))
-                #             else:
-                #                 sheet_data_attr[first_key]["avg_times"].append(None)
+                                                search["object"][k_1]["group"]["total"]["matchs"].append(match)
+                                                index1 += 1
+                                                index2 += 2
 
-                #         else:   # <if k_2 == 'log point'>
-                #             xlsx_file.writeCell(origin_point['row'] + row_offset,\
-                #                 origin_point['col'] + col_offset, v_2)
-                                    
-                #             if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-                #                 xlsx_file.writeCell(origin_point['row'],\
-                #                     origin_point['col'] + col_offset, k_2)  
-                #             col_offset += 1
+                                if search["object"][k_1]["group"]["total"]["matchs"]:
+                                    for match in search["object"][k_1]["group"]["total"]["matchs"]:
+                                        # onebox log
+                                        onebox_log = nav_log.getLog("OneBoxSearchFlow send query", match["begin_index"], match["end_index"] + 1)
+                                        if onebox_log:
+                                            if search["object"][k_1]["group"].has_key("onebox"):
+                                                search["object"][k_1]["group"]["onebox"]["matchs"].append(match)
+                                            else:
+                                                search["object"][k_1]["group"]["onebox"] = {}
+                                                search["object"][k_1]["group"]["onebox"]["matchs"] = []
+                                                search["object"][k_1]["group"]["onebox"]["matchs"].append(match)
+                                        
+                                        # category log
+                                        # suggestion log
+                                       
+                                # delta time average
+                                for k, v in search["object"][k_1]["group"].items():
+                                    group_match_cnt = 0
+                                    group_total_delta = 0
+                                    for match in v["matchs"]:           
+                                        group_total_delta += match["delta_time"]
+                                        group_match_cnt += 1
+                                    if group_total_delta != 0 and group_match_cnt != 0:
+                                        v["agv"] = round(group_total_delta/group_match_cnt, 3)
+                                    else:
+                                        v["agv"] = None
 
-                #         # get max col
-                #         if origin_point['col'] + col_offset > sheet_data_attr[first_key]['max_col']:
-                #             sheet_data_attr[first_key]['max_col'] = origin_point['col'] + col_offset
-                #     # location cell
-                #     row_offset += 1
-                #     col_offset -= (len(v_1) + len(delta_times) - 1)
-                
-                # origin_point['row'] = work_sheet.max_row + 3
+                        if work_sheet.cell(search["row"], cur_col).value == None:
+                            xlsx_file.writeCell(search["row"], cur_col, "group")
+                        for k, v in search["object"][k_1]["group"].items():
+                            # default matchs
+                            xlsx_file.writeCell(search["row"]+row_offset, cur_col, k)
+                            default_group_cnt = 0
+                            for match in v["matchs"]:
+                                default_group_cnt += 1
+                                if work_sheet.cell(search["row"], cur_col + default_group_cnt).value == None:
+                                    xlsx_file.writeCell(search["row"], cur_col + default_group_cnt, "time cost(ms)Round" + str(default_group_cnt))
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + default_group_cnt, match["delta_time"])
+                            row_offset += 1
+                            if search["max_col"] < cur_col + default_group_cnt:
+                                search["max_col"] = cur_col + default_group_cnt
+                        row_offset -= 1
+                                
+                    xlsx_file.writeCell(search["row"], search["max_col"], "agv")
+                    agv_row_offset = 0
+                    for k, v in search["object"].items():
+                        for k_1, v_1 in v["group"].items():
+                            agv_row_offset += 1
+                            try:
+                                xlsx_file.writeCell(search["row"] + agv_row_offset, search["max_col"], v_1["agv"])
+                            except KeyError:
+                                print(v_1)
 
-            # add average and total colum
-            # for k, v in sheet_data_attr.items():
-            #     if k != "boot-up":
-            #         index = 0
-            #         while index < len(v['avg_times']):
-            #             avg_time = v['avg_times'][index]
-            #             if avg_time:
-            #                 if work_sheet.cell(origin_point['row'], origin_point['col'] + col_offset).value == None:
-            #                     xlsx_file.writeCell(v['origin_point']['row'], v['max_col'],\
-            #                         'agv_times')
-            #                 xlsx_file.writeCell(v['origin_point']['row'] + index + 1, v['max_col'],\
-            #                     avg_time)
-                            
-            #             index += 1
-
-            # add filter messages
-
-
+                else:
+                    pass
+                    
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
 
