@@ -443,14 +443,14 @@ if __name__ == "__main__":
                         for member in v_route_group:
                             route_index += 1
                             if len(v_route_group) > 1:
-                                if work_sheet.cell(routing["row"], group_col + route_index).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + route_index, "time cost(ms)Round" + str(route_index))
+                                if work_sheet.cell(routing["row"], group_col + route_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["row"], group_col + route_index + 1, "time cost(ms)Round" + str(route_index))
                             else:
-                                if work_sheet.cell(routing["row"], group_col + route_index).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + route_index, "time cost(ms)Round")
+                                if work_sheet.cell(routing["row"], group_col + route_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["row"], group_col + route_index + 1, "time cost(ms)Round")
 
                             xlsx_file.writeCell(cal_route_row + route_row_offset, \
-                                group_col + route_index, round(member["delta_time"].total_seconds(), 3))
+                                group_col + route_index + 1, round(member["delta_time"].total_seconds(), 3))
 
                         route_row_offset += 1
                         
@@ -469,45 +469,45 @@ if __name__ == "__main__":
                         for member in v_guidance_group:
                             guidance_index += 1
                             if len(v_guidance_group) > 1:
-                                if work_sheet.cell(routing["row"], group_col + guidance_index).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + guidance_index, "time cost(ms)Round" + str(guidance_index))
+                                if work_sheet.cell(routing["row"], group_col + guidance_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["row"], group_col + guidance_index + 1, "time cost(ms)Round" + str(guidance_index))
                             else:
-                                if work_sheet.cell(routing["row"], group_col + guidance_index).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + guidance_index, "time cost(ms)Round")
+                                if work_sheet.cell(routing["row"], group_col + guidance_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["row"], group_col + guidance_index + 1, "time cost(ms)Round")
 
                             xlsx_file.writeCell(cal_guidance_row + guidance_row_offset, \
-                                group_col + guidance_index, round(member["delta_time"].total_seconds(), 3))
+                                group_col + guidance_index + 1, round(member["delta_time"].total_seconds(), 3))
 
                         guidance_row_offset += 1
                         
                         if routing["max_col"] < group_col + guidance_index:
                             routing["max_col"] = group_col + guidance_index  
 
-                    agv_col = routing["max_col"] + 1
-                    agv_row_offset = 0
-                    xlsx_file.writeCell(routing["row"], agv_col, "agv")
+                    avg_col = col_offset + 1
+                    avg_row_offset = 0
+                    xlsx_file.writeCell(routing["row"], avg_col, "avg")
                     for k_route_group, v_route_group in route_group.items():
-                        agv_cnt = 0
-                        agv_total = 0
+                        avg_cnt = 0
+                        avg_total = 0
                         if len(v_route_group) > 1:
                             for member in v_route_group:
-                                agv_total += member["delta_time"].total_seconds()
-                                agv_cnt += 1
-                            agv = round(agv_total / agv_cnt, 3)
-                            xlsx_file.writeCell(cal_route_row + agv_row_offset, agv_col, agv)
-                        agv_row_offset += 1
+                                avg_total += member["delta_time"].total_seconds()
+                                avg_cnt += 1
+                            avg = round(avg_total / avg_cnt, 3)
+                            xlsx_file.writeCell(cal_route_row + avg_row_offset, avg_col, avg)
+                        avg_row_offset += 1
 
-                    agv_row_offset = 0
+                    avg_row_offset = 0
                     for k_guidance_group, v_guidance_group in guidance_group.items():
-                        agv_cnt = 0
-                        agv_total = 0
+                        avg_cnt = 0
+                        avg_total = 0
                         if len(v_guidance_group) > 1:
                             for member in v_guidance_group:
-                                agv_total += member["delta_time"].total_seconds()
-                                agv_cnt += 1
-                            agv = round(agv_total / agv_cnt, 3)
-                            xlsx_file.writeCell(cal_guidance_row + agv_row_offset, agv_col, agv)
-                        agv_row_offset += 1
+                                avg_total += member["delta_time"].total_seconds()
+                                avg_cnt += 1
+                            avg = round(avg_total / avg_cnt, 3)
+                            xlsx_file.writeCell(cal_guidance_row + avg_row_offset, avg_col, avg)
+                        avg_row_offset += 1
 
                    
                 elif k == "Search":
@@ -532,7 +532,7 @@ if __name__ == "__main__":
                         search["object"][k_1]["group"] = collections.OrderedDict()
                         search["object"][k_1]["group"]["total"] = {}
                         search["object"][k_1]["group"]["total"]["matchs"] = []
-                        search["object"][k_1]["group"]["total"]["agv"] = 0
+                        search["object"][k_1]["group"]["total"]["avg"] = 0
                         cur_col = 1
                         k_1 = k_1.encode("utf-8")
                         row_offset += 1
@@ -638,35 +638,28 @@ if __name__ == "__main__":
                                         group_total_delta += match["delta_time"]
                                         group_match_cnt += 1
                                     if group_total_delta != 0 and group_match_cnt != 0:
-                                        v["agv"] = round(group_total_delta/group_match_cnt, 3)
+                                        v["avg"] = round(group_total_delta/group_match_cnt, 3)
                                     else:
-                                        v["agv"] = None
+                                        v["avg"] = None
 
                         if work_sheet.cell(search["row"], cur_col).value == None:
                             xlsx_file.writeCell(search["row"], cur_col, "group")
+                        if work_sheet.cell(search["row"], cur_col+1).value == None:
+                            xlsx_file.writeCell(search["row"], cur_col+1, "avg")
                         for k, v in search["object"][k_1]["group"].items():
                             # default matchs
                             xlsx_file.writeCell(search["row"]+row_offset, cur_col, k)
+                            xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v["avg"])
                             default_group_cnt = 0
                             for match in v["matchs"]:
                                 default_group_cnt += 1
-                                if work_sheet.cell(search["row"], cur_col + default_group_cnt).value == None:
-                                    xlsx_file.writeCell(search["row"], cur_col + default_group_cnt, "time cost(ms)Round" + str(default_group_cnt))
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + default_group_cnt, match["delta_time"])
+                                if work_sheet.cell(search["row"], cur_col + default_group_cnt + 1).value == None:
+                                    xlsx_file.writeCell(search["row"], cur_col + default_group_cnt + 1, "time cost(ms)Round" + str(default_group_cnt))
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + default_group_cnt + 1, match["delta_time"])
                             row_offset += 1
                             if search["max_col"] < cur_col + default_group_cnt:
                                 search["max_col"] = cur_col + default_group_cnt
                         row_offset -= 1
-                                
-                    xlsx_file.writeCell(search["row"], search["max_col"], "agv")
-                    agv_row_offset = 0
-                    for k, v in search["object"].items():
-                        for k_1, v_1 in v["group"].items():
-                            agv_row_offset += 1
-                            try:
-                                xlsx_file.writeCell(search["row"] + agv_row_offset, search["max_col"], v_1["agv"])
-                            except KeyError:
-                                print(v_1)
 
                 else:
                     pass
