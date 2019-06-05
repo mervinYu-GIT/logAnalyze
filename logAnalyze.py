@@ -12,16 +12,6 @@ from modules.navLog import NavLogFile, NavLog
 from modules.general_func import getFileList, sort_strings_with_embedded_numbers
 
 
-def calcTime(beginTime, endTime):
-    """ calc deltatime """
-    try:
-        delta_time = endTime - beginTime
-        return delta_time
-    except:
-        print('endTime must bigger than beginTime.')
-
-
-
 
 
 if __name__ == "__main__":
