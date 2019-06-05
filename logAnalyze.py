@@ -8,7 +8,7 @@ from datetime import datetime
 from argparse import ArgumentParser
 import collections
 from modules.navXlsx import NavXlsxFile
-from modules.navLog import NavLogFile, NavLog
+from modules.navLog import NavLog
 from modules.general_func import getFileList, sort_strings_with_embedded_numbers
 
 

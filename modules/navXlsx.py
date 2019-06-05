@@ -8,8 +8,6 @@ from openpyxl.styles import  PatternFill
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import NamedStyle, Font, Alignment, Border, Side
-from navLog import NavLogFile
-
 
 class NavXlsxFile:
     """ navigation xlsx file """
