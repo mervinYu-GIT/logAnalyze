@@ -4,13 +4,9 @@
 import sys
 from os import path
 from datetime import datetime
-from itertools import izip
 import unittest
 
-def pairwise(iterable):
-    "s -> (s0, s1), (s2, s3), (s4, s5), ..."
-    a = iter(iterable)
-    return izip(a, a)
+
 
 class NavLogFile:
     """ NavLogFile have entire message belong to navigation log file,
@@ -253,6 +249,7 @@ class NavLog:
 
 
     def loadLogFile(self, log_file, name=None):
+        logs = []
         if log_file[-4:] != '.log':
             print("valid file!")
             sys.exit()
@@ -274,7 +271,7 @@ class NavLog:
                     curLine = file_lines[index]    
                     if index == list_len - 1:      # last list item, so we should break loop
                         # self.__listAppend(curLine)
-                        self.logs.append(curLine)
+                        logs.append(curLine)
                         break
                     if curLine.isspace():          # list item is space, just ignore it
                         continue
@@ -284,18 +281,18 @@ class NavLog:
                             nextLine = file_lines[index]
                             if nextLine.isspace():
                                 # self.__listAppend(curLine)
-                                self.logs.append(curLine)
+                                logs.append(curLine)
                                 break
                             elif nextLine.find('|') == 3:
                                 if index == list_len - 1:   # last list item
                                     # self.__listAppend(curLine)
                                     # self.__listAppend(nextLine)
-                                    self.logs.append(curLine)
-                                    self.logs.append(curLine)
+                                    logs.append(curLine)
+                                    logs.append(curLine)
                                     break
                                 else:
                                     # self.__listAppend(curLine)
-                                    self.logs.append(curLine)
+                                    logs.append(curLine)
                                     curLine = nextLine
                                     continue
                             else:
@@ -306,9 +303,10 @@ class NavLog:
         else:
             log_name = path.basename(log_file).split('.')[0]
         self.attribute["name"] = log_name
-        self.attribute["len"] = len(self.logs)
-        self.attribute["begin_time"] = datetime.strptime(self.logs[0].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
-        self.attribute["end_time"] = datetime.strptime(self.logs[-1].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
+        self.attribute["len"] = len(logs)
+        self.attribute["begin_time"] = datetime.strptime(logs[0].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
+        self.attribute["end_time"] = datetime.strptime(logs[-1].split("|")[1], "%d.%m.%Y %H:%M:%S:%f")
+        self.logs = logs[:]
 
 
     def selfLogs(self, start = 0, end = -1):

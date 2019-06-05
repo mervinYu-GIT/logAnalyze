@@ -3,13 +3,13 @@
 
 import os, sys
 from os import path
-import json
-import re  
+import json  
 from datetime import datetime
 from argparse import ArgumentParser
 import collections
 from modules.navXlsx import NavXlsxFile
-from modules.navLog import NavLogFile, NavLog, pairwise
+from modules.navLog import NavLogFile, NavLog
+from modules.general_func import getFileList, sort_strings_with_embedded_numbers
 
 
 def calcTime(beginTime, endTime):
@@ -21,27 +21,7 @@ def calcTime(beginTime, endTime):
         print('endTime must bigger than beginTime.')
 
 
-def getFileList( p ):
-    """ get file name that in dictory. """
-    p = str( p )
-    if p=="":
-        return [ ]
-    p = p.replace( "/","\\")
-    if p[ -1] != "\\":
-        p = p+"\\"
-    a = os.listdir( p )
-    b = [ x   for x in a if os.path.isfile( p + x ) ]
-    return b
 
-
-# sort string containning numbers
-re_digits = re.compile(r'(\d+)')  
-def embedded_numbers(s):  
-     pieces = re_digits.split(s)               # split num and asc  
-     pieces[1::2] = map(int, pieces[1::2])     # exchange the num  
-     return pieces  
-def sort_strings_with_embedded_numbers(alist):  
-     return sorted(alist, key=embedded_numbers , reverse = True)
 
 
 if __name__ == "__main__":
@@ -403,13 +383,18 @@ if __name__ == "__main__":
                     
                     for guidance_match in cal_guidance["matchs"]:
                         route_match_index = 0
-                        while route_match_index < len(cal_route["matchs"]) - 1:
+                        while route_match_index < len(cal_route["matchs"]):
                             cur_route_match = cal_route["matchs"][route_match_index]
-                            next_route_match = cal_route["matchs"][route_match_index + 1]
-                            if guidance_match["index"] > cur_route_match["index"] and \
-                                guidance_match["index"] < next_route_match["index"]:
-                                guidance_match["name"] = cur_route_match["name"]
-                                break
+                            if route_match_index == len(cal_route["matchs"]) - 1:
+                                if guidance_match["index"] > cur_route_match["index"]:
+                                    guidance_match["name"] = cur_route_match["name"]
+                                    break
+                            else: 
+                                next_route_match = cal_route["matchs"][route_match_index + 1]
+                                if guidance_match["index"] > cur_route_match["index"] and \
+                                    guidance_match["index"] < next_route_match["index"]:
+                                    guidance_match["name"] = cur_route_match["name"]
+                                    break
                             route_match_index += 1
 
                     # groups
@@ -436,7 +421,9 @@ if __name__ == "__main__":
                     col_offset += 1
                     group_col = col_offset
                     route_row_offset = 0
+                   
                     xlsx_file.writeCell(routing["row"], col_offset, "group")
+
                     for k_route_group, v_route_group in route_group.items():
                         route_index = 0
                         xlsx_file.writeCell(cal_route_row + route_row_offset, group_col, k_route_group)
@@ -485,7 +472,8 @@ if __name__ == "__main__":
 
                     avg_col = col_offset + 1
                     avg_row_offset = 0
-                    xlsx_file.writeCell(routing["row"], avg_col, "avg")
+                    
+                    xlsx_file.writeCell(routing["row"], avg_col, "average time cost(ms)")
                     for k_route_group, v_route_group in route_group.items():
                         avg_cnt = 0
                         avg_total = 0
@@ -645,20 +633,21 @@ if __name__ == "__main__":
                         if work_sheet.cell(search["row"], cur_col).value == None:
                             xlsx_file.writeCell(search["row"], cur_col, "group")
                         if work_sheet.cell(search["row"], cur_col+1).value == None:
-                            xlsx_file.writeCell(search["row"], cur_col+1, "avg")
+                            xlsx_file.writeCell(search["row"], cur_col+1, "average time cost(ms)")
                         for k, v in search["object"][k_1]["group"].items():
                             # default matchs
-                            xlsx_file.writeCell(search["row"]+row_offset, cur_col, k)
-                            xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v["avg"])
-                            default_group_cnt = 0
-                            for match in v["matchs"]:
-                                default_group_cnt += 1
-                                if work_sheet.cell(search["row"], cur_col + default_group_cnt + 1).value == None:
-                                    xlsx_file.writeCell(search["row"], cur_col + default_group_cnt + 1, "time cost(ms)Round" + str(default_group_cnt))
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + default_group_cnt + 1, match["delta_time"])
+                            if v["matchs"]:
+                                xlsx_file.writeCell(search["row"]+row_offset, cur_col, k)
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v["avg"])
+                                default_group_cnt = 0
+                                for match in v["matchs"]:
+                                    default_group_cnt += 1
+                                    if work_sheet.cell(search["row"], cur_col + default_group_cnt + 1).value == None:
+                                        xlsx_file.writeCell(search["row"], cur_col + default_group_cnt + 1, "time cost(ms)Round" + str(default_group_cnt))
+                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + default_group_cnt + 1, match["delta_time"])
+                                if search["max_col"] < cur_col + default_group_cnt:
+                                    search["max_col"] = cur_col + default_group_cnt
                             row_offset += 1
-                            if search["max_col"] < cur_col + default_group_cnt:
-                                search["max_col"] = cur_col + default_group_cnt
                         row_offset -= 1
 
                 else:
