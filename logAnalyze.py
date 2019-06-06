@@ -4,6 +4,7 @@
 import os, sys
 from os import path
 import json  
+import re
 from datetime import datetime
 from argparse import ArgumentParser
 import collections
@@ -486,8 +487,7 @@ if __name__ == "__main__":
                             avg = round(avg_total / avg_cnt, 3)
                             xlsx_file.writeCell(cal_guidance_row + avg_row_offset, avg_col, avg)
                         avg_row_offset += 1
-
-                   
+              
                 elif k == "Search":
                     search = {}
                     search["row"] = 0
@@ -506,11 +506,10 @@ if __name__ == "__main__":
 
                     for k_1, v_1 in v.items():
                         search["object"][k_1] = {}
-                        search["object"][k_1] = collections.OrderedDict()
                         search["object"][k_1]["group"] = collections.OrderedDict()
-                        search["object"][k_1]["group"]["total"] = {}
-                        search["object"][k_1]["group"]["total"]["matchs"] = []
-                        search["object"][k_1]["group"]["total"]["avg"] = 0
+                        search["object"][k_1]["total"] = {}
+                        search["object"][k_1]["total"]["matchs"] = []
+                        search["object"][k_1]["total"]["avg"] = 0
                         cur_col = 1
                         k_1 = k_1.encode("utf-8")
                         row_offset += 1
@@ -577,7 +576,7 @@ if __name__ == "__main__":
                                                 delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
                                                 match["delta_time"] = round(delta_time.total_seconds(), 3)     # get match "delta_time"
                         
-                                                search["object"][k_1]["group"]["total"]["matchs"].append(match)
+                                                search["object"][k_1]["total"]["matchs"].append(match)
                                                 break
                                             if next_begin_index < end_index:
                                                 index1 += 1
@@ -589,12 +588,12 @@ if __name__ == "__main__":
                                                 delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
                                                 match["delta_time"] = round(delta_time.total_seconds(), 3)      # get match "delta_time"
 
-                                                search["object"][k_1]["group"]["total"]["matchs"].append(match)
+                                                search["object"][k_1]["total"]["matchs"].append(match)
                                                 index1 += 1
                                                 index2 += 2
 
-                                if search["object"][k_1]["group"]["total"]["matchs"]:
-                                    for match in search["object"][k_1]["group"]["total"]["matchs"]:
+                                if search["object"][k_1]["total"]["matchs"]:
+                                    for match in search["object"][k_1]["total"]["matchs"]:
                                         # onebox log
                                         onebox_log = nav_log.getLog("OneBoxSearchFlow send query", match["begin_index"], match["end_index"] + 1)
                                         if onebox_log:
@@ -607,41 +606,216 @@ if __name__ == "__main__":
                                         
                                         # category log
                                         # suggestion log
-                                       
-                                # delta time average
-                                for k, v in search["object"][k_1]["group"].items():
-                                    group_match_cnt = 0
-                                    group_total_delta = 0
-                                    for match in v["matchs"]:           
-                                        group_total_delta += match["delta_time"]
-                                        group_match_cnt += 1
-                                    if group_total_delta != 0 and group_match_cnt != 0:
-                                        v["avg"] = round(group_total_delta/group_match_cnt, 3)
+
+                                for k_group, v_group in search["object"][k_1]["group"].items():
+                                    pattern = None
+                                    v_group["group"] = collections.OrderedDict()
+                                    if k_group == "onebox":
+                                        pattern = re.compile(r'"(\w+)"')
                                     else:
-                                        v["avg"] = None
+                                        pass
+                                    for match in v_group["matchs"]:
+                                        log = nav_log.getLog("OneBoxSearchFlow send query", match["begin_index"], match["end_index"])
+                                        if log:
+                                            log_key = re.search(pattern, log["message"]).group(1) 
+                                            if v_group["group"].has_key(log_key):
+                                                v_group["group"][log_key]["matchs"].append(match)
+                                            else:
+                                                v_group["group"][log_key] = {}
+                                                v_group["group"][log_key]["matchs"] = []
+                                                v_group["group"][log_key]["matchs"].append(match)
+                           
+                            # delta time average
+                            match_cnt = 0
+                            match_delta_total = 0
+                            for match in search["object"][k_1]["total"]["matchs"]:
+                                match_delta_total += match["delta_time"]
+                                match_cnt += 1
+                            if match_cnt == 0:
+                                search["object"][k_1]["total"]["avg"] = None
+                            else:
+                                search["object"][k_1]["total"]["avg"] = round(match_delta_total/match_cnt, 3)
+                        
+                            for k_group, v_group in search["object"][k_1]["group"].items():
+                                for k_group_1, v_group_1 in v_group["group"].items():
+                                    match_cnt = 0
+                                    match_delta_total = 0
+                                    for match in v_group_1["matchs"]:           
+                                        match_delta_total += match["delta_time"]
+                                        match_cnt += 1
+                                    if match_cnt != 0:
+                                        v_group_1["avg"] = round(match_delta_total/match_cnt, 3)
+                                    else:
+                                        v_group_1["avg"] = None
 
                         if work_sheet.cell(search["row"], cur_col).value == None:
                             xlsx_file.writeCell(search["row"], cur_col, "group")
                         if work_sheet.cell(search["row"], cur_col+1).value == None:
                             xlsx_file.writeCell(search["row"], cur_col+1, "average time cost(ms)")
-                        for k, v in search["object"][k_1]["group"].items():
-                            # default matchs
-                            if v["matchs"]:
-                                xlsx_file.writeCell(search["row"]+row_offset, cur_col, k)
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v["avg"])
-                                default_group_cnt = 0
-                                for match in v["matchs"]:
-                                    default_group_cnt += 1
-                                    if work_sheet.cell(search["row"], cur_col + default_group_cnt + 1).value == None:
-                                        xlsx_file.writeCell(search["row"], cur_col + default_group_cnt + 1, "time cost(ms)Round" + str(default_group_cnt))
-                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + default_group_cnt + 1, match["delta_time"])
-                                if search["max_col"] < cur_col + default_group_cnt:
-                                    search["max_col"] = cur_col + default_group_cnt
-                            row_offset += 1
-                        row_offset -= 1
 
-                else:
+                        if search["object"][k_1]["total"]:
+                            xlsx_file.writeCell(search["row"] + row_offset, cur_col, "total")
+                            if len(search["object"][k_1]["total"]["matchs"]) > 1:
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, search["object"][k_1]["total"]["avg"])
+                                match_cnt = 0
+                                for match in search["object"][k_1]["total"]["matchs"]:
+                                    match_cnt += 1
+                                    if work_sheet.cell(search["row"], cur_col + 1 + match_cnt).value == None:
+                                        xlsx_file.writeCell(search["row"], cur_col + 1 + match_cnt, "time cost(ms)Round" + str(match_cnt))
+                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1 + match_cnt, match["delta_time"])
+                            elif len(search["object"][k_1]["total"]["matchs"]) == 1:
+                                if work_sheet.cell(search["row"], cur_col + 2 + match_cnt).value == None:
+                                    xlsx_file.writeCell(search["row"], cur_col + 2, "time cost(ms)")
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + 2, search["object"][k_1]["total"]["matchs"][0])
+
+                        for k_group, v_group in search["object"][k_1]["group"].items():
+                            for k_group_1, v_group_1 in v_group["group"].items():
+                                row_offset += 1
+                                xlsx_file.writeCell(search["row"] + row_offset, cur_col, k_group_1)
+                                print(k_group_1)
+                                print(v_group_1["matchs"])
+                                if len(v_group_1["matchs"]) > 1:
+                                    match_cnt = 0
+                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v_group_1["avg"])
+                                    for match in v_group_1["matchs"]:
+                                        match_cnt += 1
+                                        xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1 + match_cnt, match["delta_time"])
+                                elif len(v_group_1["matchs"]) == 1:
+                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + 2, v_group_1["matchs"][0]["delta_time"])
+
+
+                elif k == "MapDisplay":
                     pass
+                    mapdisplay = {}
+                    mapdisplay["row"] = 0
+                    mapdisplay["object"] = collections.OrderedDict()
+                    
+                    if work_sheet.max_row == 1:
+                        mapdisplay["row"] = work_sheet.max_row
+                    else:
+                        mapdisplay["row"] = work_sheet.max_row + 3
+
+                    xlsx_file.writeCell(mapdisplay["row"], 1, k)
+
+                    row_offset = 0
+                    index = 0
+                    for k_1, v_1 in v.items():
+                        mapdisplay["object"][k_1] = {}
+
+                        k_1 = k_1.encode("utf-8")
+
+                        cur_col = 1
+                        row_offset += 1
+                        index += 1
+                        xlsx_file.writeCell(mapdisplay["row"] + row_offset, 1, index)
+
+                        for k_2, v_2 in v_1.items():
+                            cur_col += 1
+                            k_2 = k_2.encode("utf-8")
+                            if k_2 == "process name":
+                                if work_sheet.cell(mapdisplay["row"], cur_col).value == None:
+                                    xlsx_file.writeCell(mapdisplay["row"], cur_col, k_2)
+
+                                xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col, v_2)
+
+                            elif k_2 == "owner":
+                                if work_sheet.cell(mapdisplay["row"], cur_col).value == None:
+                                    xlsx_file.writeCell(mapdisplay["row"], cur_col, k_2)
+
+                                xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col, v_2)
+                            if k_2 == "log point":
+                                mapdisplay["object"][k_1]["group"] = collections.OrderedDict()
+                                mapdisplay["object"][k_1]["total"] = {}
+                                begin_logs = []
+                                end_logs = []
+                                begin = v_2["begin"].encode("utf_8")
+                                end = v_2["end"].encode("utf-8")
+
+                                if begin:
+                                        begin_logs = nav_log.getLogs(begin)
+                                else:
+                                    continue
+                                
+                                if end:
+                                    end_logs = nav_log.getLogs(end)
+                                else:
+                                    continue
+
+                                if begin_logs and end_logs:   # get total matchs
+                                    mapdisplay["object"][k_1]["total"]["matchs"] = []
+                                    index1 = 0
+                                    index2 = 0
+                                    
+                                    while index1 < len(begin_logs) and index2 < len(end_logs):
+                                        match = {}
+                                        match["index"] = 0
+                                        match["begin_index"] = 0
+                                        match["end_index"] = 0
+                                        match["delta_time"] = None
+                                        match["begin_message"] = ""
+                                        match["end_message"] = ""
+                                        begin_index = begin_logs[index1]["index"]
+                                        end_index = end_logs[index2]["index"]
+
+                                        if begin_index >= end_index:
+                                            index2 += 1
+                                            continue
+                                        else:
+                                            if index1 != len(begin_logs) - 1:
+                                                next_begin_index = begin_logs[index1 + 1]["index"]
+                                            else:
+                                                match["begin_index"] = begin_logs[index1]["index"]
+                                                match["end_index"] = end_logs[index2]["index"]
+                                                match["index"] = begin_logs[index1]["index"]          # get match "index"
+                                                delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
+                                                match["delta_time"] = round(delta_time.total_seconds(), 3)     # get match "delta_time"
+                        
+                                                mapdisplay["object"][k_1]["total"]["matchs"].append(match)
+                                                break
+                                            if next_begin_index < end_index:
+                                                index1 += 1
+                                                continue
+                                            else:
+                                                match["begin_index"] = begin_logs[index1]["index"]
+                                                match["end_index"] = end_logs[index2]["index"]
+                                                match["index"] = begin_logs[index1]["index"]          # get match "index"
+                                                delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
+                                                match["delta_time"] = round(delta_time.total_seconds(), 3)      # get match "delta_time"
+
+                                                mapdisplay["object"][k_1]["total"]["matchs"].append(match)
+                                                index1 += 1
+                                                index2 += 2
+
+                                for k, v in mapdisplay["object"][k_1]["group"].items():
+                                    if v:
+                                        match_cnt = 0
+                                        delta_total = 0
+                                        for match in v["matchs"]:
+                                            delta_total += match["delta_time"]
+                                            match_cnt += 1
+                                        if match_cnt != 0:
+                                            v["avg"] = round(delta_total / match_cnt, 3)
+                                        else:
+                                            v["avg"] = None
+
+                                if mapdisplay["object"][k_1]["group"]:
+                                    if work_sheet.cell(mapdisplay["row"], cur_col).value == None:
+                                        xlsx_file.writeCell(mapdisplay["row"], cur_col, "average time comst(ms)")
+                                
+                                for k, v in mapdisplay["object"][k_1]["group"].items():
+                                    if v:
+                                        xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col, v["avg"])
+
+                                        match_offset = 0
+                                        for match in v["matchs"]:
+                                            match_offset += 1
+                                            if work_sheet.cell(mapdisplay["row"] + row_offset, cur_col + match_offset).value == None:
+                                                xlsx_file.writeCell(mapdisplay["row"], cur_col + match_offset, "time cost(ms)Round" + str(match_offset))
+                                            xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col + match_offset, match["delta_time"])
+
+
+                            
+
                     
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
