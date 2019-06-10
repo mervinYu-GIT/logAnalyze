@@ -672,8 +672,8 @@ if __name__ == "__main__":
                             for k_group_1, v_group_1 in v_group["group"].items():
                                 row_offset += 1
                                 xlsx_file.writeCell(search["row"] + row_offset, cur_col, k_group_1)
-                                print(k_group_1)
-                                print(v_group_1["matchs"])
+                                # print(k_group_1)
+                                # print(v_group_1["matchs"])
                                 if len(v_group_1["matchs"]) > 1:
                                     match_cnt = 0
                                     xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v_group_1["avg"])
