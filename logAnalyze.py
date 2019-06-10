@@ -812,11 +812,7 @@ if __name__ == "__main__":
                                             if work_sheet.cell(mapdisplay["row"] + row_offset, cur_col + match_offset).value == None:
                                                 xlsx_file.writeCell(mapdisplay["row"], cur_col + match_offset, "time cost(ms)Round" + str(match_offset))
                                             xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col + match_offset, match["delta_time"])
-
-
-                            
-
-                    
+        
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
 
