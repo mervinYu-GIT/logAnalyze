@@ -70,8 +70,11 @@ if __name__ == "__main__":
             # sheet_data attribute
             sheet_data_attr = {}
 
+            root = collections.OrderedDict()      # global data
+
             for k, v in json_data.items():
                 k = k.encode("utf-8")
+                first_title = k
                 if k == "boot-up":
                     pass
                     boot_up = {}
@@ -85,6 +88,7 @@ if __name__ == "__main__":
                     xlsx_file.writeCell(boot_up["row"] , 1, k)
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
+                        second_title = k_1
                         row_offset += 1
                         row = boot_up["row"] + row_offset
 
@@ -96,10 +100,8 @@ if __name__ == "__main__":
                             col_offset += 1
                             k_2 = k_2.encode("utf-8")
                             if k_2 == "process name":
-                                if work_sheet.cell(boot_up["row"], \
-                                        col_offset).value == None:
-                                    xlsx_file.writeCell(boot_up["row"], \
-                                        col_offset, k_2)
+                                if work_sheet.cell(boot_up["row"], col_offset).value == None:
+                                    xlsx_file.writeCell(boot_up["row"], col_offset, k_2)
 
                                 xlsx_file.writeCell(row, col_offset, v_2)
 
@@ -114,7 +116,6 @@ if __name__ == "__main__":
                                 end_time = None
                                 begin = v_2["begin"].encode("utf-8")
                                 end = v_2["end"].encode("utf-8")
-
 
                                 if begin:
                                     begin_result = nav_log.getLog(begin)

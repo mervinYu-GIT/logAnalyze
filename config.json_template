@@ -48,6 +48,14 @@
 				"end": "P12.R601.01 : End Marker for Navigation Rendering"
 			}
 		},
+		"Loading HMj": {
+			"process name": "Loading HMj",
+			"owner": "HMI/QTARP",
+			"log point": {
+				"begin": "QtArp object model created",
+				"end": "P12.R601.01 : End Marker for Navigation Rendering"
+			}
+		},
         "total": {
 			"process name": "Total",
 			"owner": "",
@@ -76,9 +84,44 @@
 		}
 	},
 	"Search": {
+		"OneBox_TASDK_Cloud": {
+			"process name": "OneBox_TASDK_Cloud",
+			"owner": "TASDK",
+			"log point": {
+				"begin": "entity service cloud search request url",
+				"end": "entity service cloud search response"
+			}
+		},
+		"OneBox_TASDK_OnBoard": {
+			"process name": "OneBox_TASDK_OnBoard",
+			"owner": "TASDK",
+			"log point": {
+				"begin": "entity service search request url",
+				"end": "entity service search response, error code: 0, response data size"
+			}
+		},
+		"OneBox_QTARP_Cloud": {
+			"process name": "OneBox_QTARP_Cloud",
+			"owner": "TASDK",
+			"log point": {
+				"begin": "Starting  cloud  search...",
+				"end": "Finished  cloud  search after "
+			}
+		},
+		"OneBox_QTARP_OnBoard": {
+			"process name": "OneBox_QTARP_OnBoard",
+			"owner": "QTARP",
+			"log point": {
+			"begin": "Starting  onboard  search...",
+			"end": "Finished  onboard  search after "
+			}
+		},
 		"OneBox": {
 			"process name": "OneBox",
 			"owner": "TASDK/QTARP",
+			"key_name":{
+				"search_key":"exit SearchServiceImpl::suggestions, query:"
+			},
 			"log point": {
 				"begin": "P12.R083.01  : One box search : Start Marker:",
 				"end": "P12.R083.01  : One box search : End Marker:"
@@ -95,6 +138,9 @@
 		"Suggestion": {
 			"process name": "Suggestion",
 			"owner": "TASDK/QTARP",
+			"key_name":{
+				"search_key":"exit SearchServiceImpl::suggestions, query:"
+			},
 			"log point": {
 				"begin": "QAutoSuggestionSearchFlowImpl send query",
 				"end": "QAutoSuggestionearchFlowImpl receive onAutoSuggestionSearchFinish result"
