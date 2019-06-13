@@ -77,8 +77,15 @@ class NavLog:
         self.logs = logs[:]
 
 
-    def selfLogs(self, start = 0, end = -1):
-        return self.logs[start : end]
+    def selfLog(self, log_index):
+        return self.logs[log_index]
+
+
+    def selfLogs(self, start=0, end=-1):
+        if start == end:
+            return self.logs[start]
+        else:
+            return self.logs[start:end]
 
     
     def getBeginTime(self):

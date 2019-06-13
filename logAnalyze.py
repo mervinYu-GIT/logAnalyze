@@ -13,7 +13,22 @@ from modules.navLog import NavLog
 from modules.general_func import getFileList, sort_strings_with_embedded_numbers
 
 
-
+category = {
+    "-1":"Recents",
+    "-2":"Saved",
+    "-3":"Trips",
+    "161":"camping_sites",
+    "101":"GasStations",
+    "1000":"Food",
+    "471":"Attractions",
+    "129":"Parking",
+    "201":"ATMs",
+    "1003":"Shopping",
+    "171":"RestAreas",
+    "11":"Coffee",
+    "645":"Emergency",
+    "111":"Hotel"
+}
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser()
@@ -492,8 +507,9 @@ if __name__ == "__main__":
                 elif k == "Search":
                     search = {}
                     search["row"] = 0
-                    search["max_col"] = 0
-                    search["object"] = collections.OrderedDict()
+                    search["col"] = 0
+
+                    search["process"] = collections.OrderedDict()
 
                     if work_sheet.max_row == 1:
                         search["row"] = work_sheet.max_row
@@ -504,35 +520,35 @@ if __name__ == "__main__":
                     row_offset = 0
                     index = 0
                     xlsx_file.writeCell(search["row"] , 1, k)  # write cell "search"
-
+                          
                     for k_1, v_1 in v.items():
-                        search["object"][k_1] = {}
-                        search["object"][k_1]["group"] = collections.OrderedDict()
-                        search["object"][k_1]["total"] = {}
-                        search["object"][k_1]["total"]["matchs"] = []
-                        search["object"][k_1]["total"]["avg"] = 0
-                        cur_col = 1
                         k_1 = k_1.encode("utf-8")
+                        if k_1 == "OneBox_TASDK_Cloud" or k_1 == "OneBox_TASDK_OnBoard" \
+                            or k_1 == "OneBox_QTARP_Cloud" or k_1 == "OneBox_QTARP_OnBoard":
+                            continue
+                        
+                        cur_col = 1
                         row_offset += 1
                         index += 1
                         xlsx_file.writeCell(search["row"] + row_offset, 1, index)
 
                         for k_2, v_2 in v_1.items():
                             k_2 = k_2.encode("utf-8")
-                            cur_col += 1
                             
                             if k_2 == "process name":
+                                pass
+                                cur_col += 1
                                 if work_sheet.cell(search["row"], cur_col).value == None:
                                         xlsx_file.writeCell(search["row"], cur_col, k_2)
                                 xlsx_file.writeCell(search["row"] + row_offset, cur_col, v_2)
 
-                                pass
                             elif k_2 == "owner":
+                                pass
+                                cur_col += 1
                                 if work_sheet.cell(search["row"], cur_col).value == None:
                                         xlsx_file.writeCell(search["row"], cur_col, k_2)
                                 xlsx_file.writeCell(search["row"] + row_offset, cur_col, v_2)
 
-                                pass
                             elif k_2 == "log point":
                                 begin_logs = []
                                 end_logs = []
@@ -540,7 +556,7 @@ if __name__ == "__main__":
                                 end = v_2["end"].encode("utf-8")
 
                                 if begin:
-                                        begin_logs = nav_log.getLogs(begin)
+                                    begin_logs = nav_log.getLogs(begin)
                                 else:
                                     continue
                                 
@@ -548,19 +564,17 @@ if __name__ == "__main__":
                                     end_logs = nav_log.getLogs(end)
                                 else:
                                     continue
-
+                                
+                                matchs = []
                                 if begin_logs and end_logs:   # get total matchs
                                     index1 = 0
                                     index2 = 0
                                     
                                     while index1 < len(begin_logs) and index2 < len(end_logs):
                                         match = {}
-                                        match["index"] = 0
                                         match["begin_index"] = 0
                                         match["end_index"] = 0
                                         match["delta_time"] = None
-                                        match["begin_message"] = ""
-                                        match["end_message"] = ""
                                         begin_index = begin_logs[index1]["index"]
                                         end_index = end_logs[index2]["index"]
 
@@ -570,120 +584,222 @@ if __name__ == "__main__":
                                         else:
                                             if index1 != len(begin_logs) - 1:
                                                 next_begin_index = begin_logs[index1 + 1]["index"]
+                                                if next_begin_index < end_index:
+                                                    index1 += 1
+                                                    continue
+                                                else:
+                                                    match["begin_index"] = begin_logs[index1]["index"]
+                                                    match["end_index"] = end_logs[index2]["index"]
+                                                    delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
+                                                    match["delta_time"] = round(delta_time.total_seconds(), 3)      # get match "delta_time"
+
+                                                    matchs.append(match)
+                                                    index1 += 1
+                                                    index2 += 1
                                             else:
                                                 match["begin_index"] = begin_logs[index1]["index"]
                                                 match["end_index"] = end_logs[index2]["index"]
-                                                match["index"] = begin_logs[index1]["index"]          # get match "index"
                                                 delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
                                                 match["delta_time"] = round(delta_time.total_seconds(), 3)     # get match "delta_time"
                         
-                                                search["object"][k_1]["total"]["matchs"].append(match)
+                                                matchs.append(match)
                                                 break
-                                            if next_begin_index < end_index:
-                                                index1 += 1
-                                                continue
-                                            else:
-                                                match["begin_index"] = begin_logs[index1]["index"]
-                                                match["end_index"] = end_logs[index2]["index"]
-                                                match["index"] = begin_logs[index1]["index"]          # get match "index"
-                                                delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
-                                                match["delta_time"] = round(delta_time.total_seconds(), 3)      # get match "delta_time"
 
-                                                search["object"][k_1]["total"]["matchs"].append(match)
-                                                index1 += 1
-                                                index2 += 2
+                                if k_1 == "Category":
+                                    pass
+                                    search["process"][k_1] = {}
+                                    search["process"][k_1]["groups"] = collections.OrderedDict()
+                                    pattern = re.compile(r'"(\d+)"')
+                                    if matchs:
+                                        for match in matchs:
+                                            group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
+                                            if group_log:
+                                                search_result = re.search(pattern, group_log["message"])
+                                                if search_result:
+                                                    group_name = category[search_result.group(1)]
+                                                    if search["process"][k_1]["groups"].has_key(group_name):
+                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                                    else:
+                                                        search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
+                                                        search["process"][k_1]["groups"][group_name]["total"] = []
+                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                                else:
+                                                    print("re.search failed")
+                                    
+                                elif k_1 == "OneBox":
+                                    pass
+                                    search["process"][k_1] = {}
+                                    search["process"][k_1]["groups"] = {}
+                                    pattern = re.compile(r'"(.+)"')
+                                    if matchs:
+                                        for match in matchs:
+                                            group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
+                                            # print(group_log)
 
-                                if search["object"][k_1]["total"]["matchs"]:
-                                    for match in search["object"][k_1]["total"]["matchs"]:
-                                        # onebox log
-                                        onebox_log = nav_log.getLog("OneBoxSearchFlow send query", match["begin_index"], match["end_index"] + 1)
-                                        if onebox_log:
-                                            if search["object"][k_1]["group"].has_key("onebox"):
-                                                search["object"][k_1]["group"]["onebox"]["matchs"].append(match)
-                                            else:
-                                                search["object"][k_1]["group"]["onebox"] = {}
-                                                search["object"][k_1]["group"]["onebox"]["matchs"] = []
-                                                search["object"][k_1]["group"]["onebox"]["matchs"].append(match)
-                                        
-                                        # category log
-                                        # suggestion log
+                                            if group_log:
+                                                search_result = re.search(pattern, group_log["message"])
+                                                if search_result:
+                                                    group_name = search_result.group(1)
+                                                    # print(group_name)
+                                                    if search["process"][k_1]["groups"].has_key(group_name):
+                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                                    else:
+                                                        search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
+                                                        search["process"][k_1]["groups"][group_name]["total"] = []
+                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                    # if search["process"][k_1]["groups"]:
+                                    #     for group_k, group_v in search["process"][k_1]["groups"].items():
+                                    #         print(group_v)
+                                    # else:
+                                    #     print("in onebox : not found group")
+                                    
+                                elif k_1 == "Suggestion":
+                                    pass
+                                    search["process"][k_1] = {}
+                                    search["process"][k_1]["groups"] = {}
+                                    pattern = re.compile(r'"(.+)"')
+                                    if matchs:
+                                        for match in matchs:
+                                            group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
 
-                                for k_group, v_group in search["object"][k_1]["group"].items():
-                                    pattern = None
-                                    v_group["group"] = collections.OrderedDict()
-                                    if k_group == "onebox":
-                                        pattern = re.compile(r'"(\w+)"')
-                                    else:
-                                        pass
-                                    for match in v_group["matchs"]:
-                                        log = nav_log.getLog("OneBoxSearchFlow send query", match["begin_index"], match["end_index"])
-                                        if log:
-                                            log_key = re.search(pattern, log["message"]).group(1) 
-                                            if v_group["group"].has_key(log_key):
-                                                v_group["group"][log_key]["matchs"].append(match)
-                                            else:
-                                                v_group["group"][log_key] = {}
-                                                v_group["group"][log_key]["matchs"] = []
-                                                v_group["group"][log_key]["matchs"].append(match)
-                           
-                            # delta time average
-                            match_cnt = 0
-                            match_delta_total = 0
-                            for match in search["object"][k_1]["total"]["matchs"]:
-                                match_delta_total += match["delta_time"]
-                                match_cnt += 1
-                            if match_cnt == 0:
-                                search["object"][k_1]["total"]["avg"] = None
-                            else:
-                                search["object"][k_1]["total"]["avg"] = round(match_delta_total/match_cnt, 3)
+                                            if group_log:
+                                                search_result = re.search(pattern, group_log["message"])
+                                                if search_result:
+                                                    group_name = search_result.group(1)
+                                                    if search["process"][k_1]["groups"].has_key(group_name):
+                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                                    else:
+                                                        search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
+                                                        search["process"][k_1]["groups"][group_name]["total"] = []
+                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
+
+                                    # if search["process"][k_1]["groups"]:
+                                    #     for group_k, group_v in search["process"][k_1]["groups"].items():
+                                    #         print(group_v)
+                                    # else:
+                                    #     print("in onebox : not found group")
+
+                        if v.has_key("OneBox_QTARP_Cloud"):
+                            if search.has_key("process"):
+                                if search["process"].has_key(k_1):
+                                    if search["process"][k_1].has_key("groups"):
+                                        for group_name, group_value in search["process"][k_1]["groups"].items():
+                                            if group_value.has_key("total"):
+                                                group_value["OneBox_QTARP_Cloud"] = []
+                                                for match in group_value["total"]:
+                                                    begin_key = v["OneBox_QTARP_Cloud"]["log point"]["begin"].encode("utf-8")
+                                                    end_key = v["OneBox_QTARP_Cloud"]["log point"]["end"].encode("utf-8")
+
+                                                    begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
+                                                    if begin_log:
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"])
+                                                        if end_log:
+                                                            qtarp_cloud_match = {}
+                                                            qtarp_cloud_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
+                                                            qtarp_cloud_match["begin_index"] = begin_log["index"]
+                                                            qtarp_cloud_match["end_index"] = end_log["index"]
+                                                            group_value["OneBox_QTARP_Cloud"].append(qtarp_cloud_match)
+
+
+                        if v.has_key("OneBox_QTARP_OnBoard"):
+                            if search.has_key("process"):
+                                if search["process"].has_key(k_1):
+                                    if search["process"][k_1].has_key("groups"):
+                                        for group_name, group_value in search["process"][k_1]["groups"].items():
+                                            if group_value.has_key("total"):
+                                                group_value["OneBox_QTARP_OnBoard"] = []
+                                                for match in group_value["total"]:
+                                                    begin_key = v["OneBox_QTARP_OnBoard"]["log point"]["begin"].encode("utf-8")
+                                                    end_key = v["OneBox_QTARP_OnBoard"]["log point"]["end"].encode("utf-8")
+
+                                                    begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
+                                                    if begin_log:
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"], match["end_index"])
+                                                        if end_log:
+                                                            qtarp_onboard_match = {}
+                                                            qtarp_onboard_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
+                                                            qtarp_onboard_match["begin_index"] = begin_log["index"]
+                                                            qtarp_onboard_match["end_index"] = end_log["index"]
+                                                            group_value["OneBox_QTARP_OnBoard"].append(qtarp_onboard_match)
+
+                        if v.has_key("OneBox_TASDK_Cloud"):
+                            begin_key = v["OneBox_TASDK_Cloud"]["log point"]["begin"].encode("utf-8")
+                            end_key = v["OneBox_TASDK_Cloud"]["log point"]["end"].encode("utf-8")
+                            if search.has_key("process"):
+                                if search["process"].has_key(k_1):
+                                    if search["process"][k_1].has_key("groups"):
+                                        for group_name, group_value in search["process"][k_1]["groups"].items():
+                                            if group_value.has_key("total"):
+                                                group_value["OneBox_TASDK_Cloud"] = []
+                                                for match in group_value["total"]:
+                                                    begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
+                                                    if begin_log:
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"])
+                                                        if end_log:
+                                                            tasdk_cloud_match = {}
+                                                            tasdk_cloud_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
+                                                            tasdk_cloud_match["begin_index"] = begin_log["index"]
+                                                            tasdk_cloud_match["end_index"] = end_log["index"]
+                                                            group_value["OneBox_TASDK_Cloud"].append(tasdk_cloud_match)
+
+                        if v.has_key("OneBox_TASDK_OnBoard"):
+                            if search.has_key("process"):
+                                if search["process"].has_key(k_1):
+                                    if search["process"][k_1].has_key("groups"):
+                                        for group_name, group_value in search["process"][k_1]["groups"].items():
+                                            if group_value.has_key("total"):
+                                                group_value["OneBox_TASDK_OnBoard"] = []
+                                                for match in group_value["total"]:
+                                                    begin_key = v["OneBox_TASDK_OnBoard"]["log point"]["begin"].encode("utf-8")
+                                                    end_key = v["OneBox_TASDK_OnBoard"]["log point"]["end"].encode("utf-8")
+
+                                                    begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
+                                                    if begin_log:
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"], match["end_index"])
+                                                        if end_log:
+                                                            tasdk_onboard_match = {}
+                                                            tasdk_onboard_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
+                                                            tasdk_onboard_match["begin_index"] = begin_log["index"]
+                                                            tasdk_onboard_match["end_index"] = end_log["index"]
+                                                            group_value["OneBox_TASDK_OnBoard"].append(tasdk_onboard_match) 
+
+                        group_col = cur_col + 1
+                        sub_group_col = group_col + 1
+                        avg_col = sub_group_col + 1
+                        if work_sheet.cell(search["row"], group_col).value == None:
+                            xlsx_file.writeCell(search["row"], group_col, "group")
+                        if work_sheet.cell(search["row"], sub_group_col).value == None:
+                            xlsx_file.writeCell(search["row"], sub_group_col, "sub group")
+                        if work_sheet.cell(search["row"], avg_col).value == None:
+                            xlsx_file.writeCell(search["row"], avg_col, "average time cost")
                         
-                            for k_group, v_group in search["object"][k_1]["group"].items():
-                                for k_group_1, v_group_1 in v_group["group"].items():
-                                    match_cnt = 0
-                                    match_delta_total = 0
-                                    for match in v_group_1["matchs"]:           
-                                        match_delta_total += match["delta_time"]
-                                        match_cnt += 1
-                                    if match_cnt != 0:
-                                        v_group_1["avg"] = round(match_delta_total/match_cnt, 3)
-                                    else:
-                                        v_group_1["avg"] = None
+                        if search.has_key("process"):
+                            if search["process"].has_key(k_1):
+                                for group_name, group_value in search["process"][k_1]["groups"].items():
+                                    xlsx_file.writeCell(search["row"]+row_offset, group_col, str(group_name))
+                                    for sub_group_name, sub_group_value in group_value.items():
+                                        xlsx_file.writeCell(search["row"]+row_offset, sub_group_col, str(sub_group_name))
 
-                        if work_sheet.cell(search["row"], cur_col).value == None:
-                            xlsx_file.writeCell(search["row"], cur_col, "group")
-                        if work_sheet.cell(search["row"], cur_col+1).value == None:
-                            xlsx_file.writeCell(search["row"], cur_col+1, "average time cost(ms)")
-
-                        if search["object"][k_1]["total"]:
-                            xlsx_file.writeCell(search["row"] + row_offset, cur_col, "total")
-                            if len(search["object"][k_1]["total"]["matchs"]) > 1:
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, search["object"][k_1]["total"]["avg"])
-                                match_cnt = 0
-                                for match in search["object"][k_1]["total"]["matchs"]:
-                                    match_cnt += 1
-                                    if work_sheet.cell(search["row"], cur_col + 1 + match_cnt).value == None:
-                                        xlsx_file.writeCell(search["row"], cur_col + 1 + match_cnt, "time cost(ms)Round" + str(match_cnt))
-                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1 + match_cnt, match["delta_time"])
-                            elif len(search["object"][k_1]["total"]["matchs"]) == 1:
-                                if work_sheet.cell(search["row"], cur_col + 2 + match_cnt).value == None:
-                                    xlsx_file.writeCell(search["row"], cur_col + 2, "time cost(ms)")
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col + 2, search["object"][k_1]["total"]["matchs"][0])
-
-                        for k_group, v_group in search["object"][k_1]["group"].items():
-                            for k_group_1, v_group_1 in v_group["group"].items():
-                                row_offset += 1
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col, k_group_1)
-                                # print(k_group_1)
-                                # print(v_group_1["matchs"])
-                                if len(v_group_1["matchs"]) > 1:
-                                    match_cnt = 0
-                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1, v_group_1["avg"])
-                                    for match in v_group_1["matchs"]:
-                                        match_cnt += 1
-                                        xlsx_file.writeCell(search["row"] + row_offset, cur_col + 1 + match_cnt, match["delta_time"])
-                                elif len(v_group_1["matchs"]) == 1:
-                                    xlsx_file.writeCell(search["row"] + row_offset, cur_col + 2, v_group_1["matchs"][0]["delta_time"])
-
+                                        match_cnt = 0
+                                        sub_group_total = 0
+                                        sub_group_avg = 0
+                                        if sub_group_value:
+                                            if len(sub_group_value) > 1:
+                                                for match in sub_group_value:
+                                                    pass
+                                                    match_cnt += 1
+                                                    sub_group_total += match["delta_time"]
+                                                    if work_sheet.cell(search["row"], avg_col + match_cnt).value == None:
+                                                        xlsx_file.writeCell(search["row"], avg_col + match_cnt, "time cost(ms)Round" + str(match_cnt))
+                                                    xlsx_file.writeCell(search["row"]+row_offset, avg_col + match_cnt, match["delta_time"])
+                                                sub_group_avg = round(sub_group_total/match_cnt, 3)
+                                                xlsx_file.writeCell(search["row"] + row_offset, avg_col, sub_group_avg)
+                                            else:
+                                                pass
+                                                if work_sheet.cell(search["row"], avg_col + match_cnt).value == None:
+                                                        xlsx_file.writeCell(search["row"], avg_col + 1, "time cost(ms)Round")
+                                                xlsx_file.writeCell(search["row"]+row_offset, avg_col + 1, sub_group_value[0]["delta_time"])
+                                        row_offset += 1       
 
                 elif k == "MapDisplay":
                     pass
