@@ -20,7 +20,8 @@ class NavXlsxFile:
         self.sheet_style =  NamedStyle(name='sheet_style')
         self.sheet_style.alignment = Alignment(horizontal='center', vertical = 'center')
         bd = Side(style='thin', color="000000")
-        self.sheet_style.border = Border(left=bd, top=bd, right=bd, bottom=bd)
+        # self.sheet_style.border = Border(left=bd, top=bd, right=bd, bottom=bd)
+        self.border = Border(left=bd, top=bd, right=bd, bottom=bd)
         self.work_book.add_named_style(self.sheet_style)
 
 
@@ -76,6 +77,49 @@ class NavXlsxFile:
         cell = ws.cell(row, col)
         fill = PatternFill("solid", fgColor=color)
         cell.fill = fill
+
+
+    def setCellBorder(self, sheet_name, begin_row, begin_col, end_row, end_col):
+        ws = self.work_book[sheet_name]
+        cells = [(cell_row, cell_col) for cell_row in range(begin_row, end_row + 1)
+                                      for cell_col in range(begin_col, end_col + 1)]
+        for cur_cell in cells:
+            ws.cell(cur_cell[0], cur_cell[1]).border = self.border
+        
+
+    def mergeCell(self, sheet_name, begin_row, end_row, begin_col=1, end_col=3):
+        ws = self.work_book[sheet_name]
+        cells = [(cell_row, cell_col) for cell_col in range(begin_col, end_col+1)
+                                      for cell_row in range(begin_row+1, end_row+1)]
+        
+        for cur_col in range(begin_col, end_col+1):
+            cells = [(cell_row, cur_col) for cell_row in range(begin_row+1, end_row+1)]
+
+            merge_flag = 0
+            blank_index = 0
+            cell_index = 0
+
+            while cell_index < len(cells):
+                cur_cell = cells[cell_index]
+                if ws.cell(cur_cell[0], cur_cell[1]).value != None:
+                    pass
+                    if merge_flag == 0:
+                        merge_flag = 1
+                    else:
+                        merge_flag = 0
+                        if blank_index > 0:
+                            ws.merge_cells(start_row=cur_cell[0]-(blank_index+1), start_column=cur_cell[1],
+                                        end_row=cur_cell[0]-1, end_column=cur_cell[1])
+                            cell_index -= 1
+                            blank_index = 0
+                else:
+                    pass
+                    blank_index += 1
+                    if cell_index == len(cells) - 1:
+                        if merge_flag > 0:
+                            ws.merge_cells(start_row=cur_cell[0]-blank_index, start_column=cur_cell[1],
+                                           end_row=cur_cell[0], end_column=cur_cell[1])
+                cell_index += 1
 
 
 

@@ -93,19 +93,24 @@ if __name__ == "__main__":
                 if k == "boot-up":
                     pass
                     boot_up = {}
+                    boot_up["cell_point"] = {}
+                    boot_up["cell_point"]["left_up"] = {}
+                    boot_up["cell_point"]["right_down"] = {}
                     if work_sheet.max_row == 1:
-                        boot_up["row"] = work_sheet.max_row
+                        boot_up["cell_point"]["left_up"]["row"] = work_sheet.max_row
                     else:
-                        boot_up["row"] = work_sheet.max_row + 3
+                        boot_up["cell_point"]["left_up"]["row"] = work_sheet.max_row + 3
+                    boot_up["cell_point"]["left_up"]["col"] = 1
+                    boot_up["cell_point"]["right_down"]["col"] = 0
 
                     row_offset = 0
                     index = 0
-                    xlsx_file.writeCell(boot_up["row"] , 1, k)
+                    xlsx_file.writeCell(boot_up["cell_point"]["left_up"]["row"] , 1, k)
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
                         second_title = k_1
                         row_offset += 1
-                        row = boot_up["row"] + row_offset
+                        row = boot_up["cell_point"]["left_up"]["row"] + row_offset
 
                         index += 1
                         xlsx_file.writeCell(row, 1, index)
@@ -115,14 +120,14 @@ if __name__ == "__main__":
                             col_offset += 1
                             k_2 = k_2.encode("utf-8")
                             if k_2 == "process name":
-                                if work_sheet.cell(boot_up["row"], col_offset).value == None:
-                                    xlsx_file.writeCell(boot_up["row"], col_offset, k_2)
+                                if work_sheet.cell(boot_up["cell_point"]["left_up"]["row"], col_offset).value == None:
+                                    xlsx_file.writeCell(boot_up["cell_point"]["left_up"]["row"], col_offset, k_2)
 
                                 xlsx_file.writeCell(row, col_offset, v_2)
 
                             elif k_2 == "owner":
-                                if work_sheet.cell(boot_up["row"], col_offset).value == None:
-                                    xlsx_file.writeCell(boot_up["row"], col_offset, k_2)
+                                if work_sheet.cell(boot_up["cell_point"]["left_up"]["row"], col_offset).value == None:
+                                    xlsx_file.writeCell(boot_up["cell_point"]["left_up"]["row"], col_offset, k_2)
 
                                 xlsx_file.writeCell(row, col_offset, v_2)
 
@@ -146,22 +151,36 @@ if __name__ == "__main__":
                                 else:
                                     end_time = nav_log.getEndTime()
                                 
-                                if work_sheet.cell(boot_up["row"], \
+                                if work_sheet.cell(boot_up["cell_point"]["left_up"]["row"], \
                                         col_offset).value == None:
-                                    xlsx_file.writeCell(boot_up["row"], \
+                                    xlsx_file.writeCell(boot_up["cell_point"]["left_up"]["row"], \
                                         col_offset, "time cost")
 
                                 if begin_time and end_time:
                                     delta_time = end_time - begin_time
 
                                     xlsx_file.writeCell(row, \
-                                        col_offset, delta_time.total_seconds())                          
+                                        col_offset, delta_time.total_seconds())
+
+                        if boot_up["cell_point"]["right_down"]["col"] < col_offset:
+                            boot_up["cell_point"]["right_down"]["col"] = col_offset
+
+                    boot_up["cell_point"]["right_down"]["row"] = boot_up["cell_point"]["left_up"]["row"] + row_offset
+                    xlsx_file.setCellBorder(sheet_name, boot_up["cell_point"]["left_up"]["row"],
+                                                        boot_up["cell_point"]["left_up"]["col"],
+                                                        boot_up["cell_point"]["right_down"]["row"],
+                                                        boot_up["cell_point"]["right_down"]["col"],
+                                                        )
+
           
                 elif k == "Routing":
                     pass
                     routing = {}  # routing message
-                    routing["row"] = 0
-                    routing["max_col"] = 0
+                    routing["cell_point"] = {}
+                    routing["cell_point"]["left_up"] = {}
+                    routing["cell_point"]["right_down"] = {}
+                    routing["cell_point"]["right_down"]["row"] = 0
+                    routing["cell_point"]["right_down"]["col"] = 0
 
                     routing["Calculate Route"] = {}
                     routing["Calculate Route"]["group"] = collections.OrderedDict()
@@ -182,19 +201,20 @@ if __name__ == "__main__":
                     routing["Calculate Guidance"]["owner"] = ""
 
                     if work_sheet.max_row == 1:
-                        routing["row"] = work_sheet.max_row
+                        routing["cell_point"]["left_up"]["row"] = work_sheet.max_row
                     else:
-                        routing["row"] = work_sheet.max_row + 3
+                        routing["cell_point"]["left_up"]["row"] = work_sheet.max_row + 3
+                    routing["cell_point"]["left_up"]["col"] = 1
 
                     row_offset = 0
                     index = 0
-                    xlsx_file.writeCell(routing["row"] , 1, k)
+                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"] , 1, k)
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
 
                         if k_1 == "Calculate Route":
                             row_offset += 1
-                            routing["Calculate Route"]["row"] = routing["row"] + row_offset
+                            routing["Calculate Route"]["row"] = routing["cell_point"]["left_up"]["row"] + row_offset
                             cal_route_row = routing["Calculate Route"]["row"]
                             
                             index += 1
@@ -205,15 +225,15 @@ if __name__ == "__main__":
                                 k_2 = k_2.encode("utf-8")
                                 if k_2 == "process name":    # ----------process name --------------                 
                                     col_offset += 1
-                                    if work_sheet.cell(routing["row"], col_offset).value == None:
-                                        xlsx_file.writeCell(routing["row"], col_offset, k_2)
+                                    if work_sheet.cell(routing["cell_point"]["left_up"]["row"], col_offset).value == None:
+                                        xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], col_offset, k_2)
 
                                     xlsx_file.writeCell(cal_route_row, \
                                          col_offset, v_2)
                                 elif k_2 == "owner":        # -----------owner----------------------
                                     col_offset += 1
-                                    if work_sheet.cell(routing["row"], col_offset).value == None:
-                                        xlsx_file.writeCell(routing["row"], col_offset, k_2)
+                                    if work_sheet.cell(routing["cell_point"]["left_up"]["row"], col_offset).value == None:
+                                        xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], col_offset, k_2)
 
                                     xlsx_file.writeCell(cal_route_row, \
                                          col_offset, v_2)
@@ -429,7 +449,7 @@ if __name__ == "__main__":
                     group_col = col_offset
                     route_row_offset = 0
                    
-                    xlsx_file.writeCell(routing["row"], col_offset, "group")
+                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], col_offset, "group")
 
                     for k_route_group, v_route_group in route_group.items():
                         route_index = 0
@@ -437,19 +457,19 @@ if __name__ == "__main__":
                         for member in v_route_group:
                             route_index += 1
                             if len(v_route_group) > 1:
-                                if work_sheet.cell(routing["row"], group_col + route_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + route_index + 1, "time cost(ms)Round" + str(route_index))
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1, "time cost(ms)Round" + str(route_index))
                             else:
-                                if work_sheet.cell(routing["row"], group_col + route_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + route_index + 1, "time cost(ms)Round")
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1, "time cost(ms)Round")
 
                             xlsx_file.writeCell(cal_route_row + route_row_offset, \
                                 group_col + route_index + 1, round(member["delta_time"].total_seconds(), 3))
 
                         route_row_offset += 1
                         
-                        if routing["max_col"] < group_col + route_index:
-                            routing["max_col"] = group_col + route_index
+                        if routing["cell_point"]["right_down"]["col"] < group_col + route_index + 1:
+                            routing["cell_point"]["right_down"]["col"] = group_col + route_index + 1
 
                     cal_guidance_row = cal_route_row + route_row_offset
                     index += 1
@@ -463,24 +483,24 @@ if __name__ == "__main__":
                         for member in v_guidance_group:
                             guidance_index += 1
                             if len(v_guidance_group) > 1:
-                                if work_sheet.cell(routing["row"], group_col + guidance_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + guidance_index + 1, "time cost(ms)Round" + str(guidance_index))
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1, "time cost(ms)Round" + str(guidance_index))
                             else:
-                                if work_sheet.cell(routing["row"], group_col + guidance_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["row"], group_col + guidance_index + 1, "time cost(ms)Round")
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1, "time cost(ms)Round")
 
                             xlsx_file.writeCell(cal_guidance_row + guidance_row_offset, \
                                 group_col + guidance_index + 1, round(member["delta_time"].total_seconds(), 3))
 
                         guidance_row_offset += 1
                         
-                        if routing["max_col"] < group_col + guidance_index:
-                            routing["max_col"] = group_col + guidance_index  
+                        if routing["cell_point"]["right_down"]["col"] < group_col + guidance_index + 1:
+                            routing["cell_point"]["right_down"]["col"] = group_col + guidance_index + 1  
 
                     avg_col = col_offset + 1
                     avg_row_offset = 0
                     
-                    xlsx_file.writeCell(routing["row"], avg_col, "average time cost(ms)")
+                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], avg_col, "average time cost(ms)")
                     for k_route_group, v_route_group in route_group.items():
                         avg_cnt = 0
                         avg_total = 0
@@ -503,23 +523,39 @@ if __name__ == "__main__":
                             avg = round(avg_total / avg_cnt, 3)
                             xlsx_file.writeCell(cal_guidance_row + avg_row_offset, avg_col, avg)
                         avg_row_offset += 1
-              
+
+                    routing["cell_point"]["right_down"]["row"] = work_sheet.max_row
+                    xlsx_file.mergeCell(sheet_name, begin_row=routing["cell_point"]["left_up"]["row"],
+                                                    end_row=routing["cell_point"]["right_down"]["row"])
+
+                    xlsx_file.setCellBorder(sheet_name, routing["cell_point"]["left_up"]["row"],
+                                                        routing["cell_point"]["left_up"]["col"],
+                                                        routing["cell_point"]["right_down"]["row"],
+                                                        routing["cell_point"]["right_down"]["col"],)   
+                                                        
                 elif k == "Search":
                     search = {}
-                    search["row"] = 0
-                    search["col"] = 0
+                    search["cell_point"] = {}
+                    search["cell_point"]["left_up"] = {}
+                    search["cell_point"]["right_down"] = {}
+                    search["cell_point"]["right_down"]["row"] = 1
+                    search["cell_point"]["right_down"]["col"] = 1
+                    
+                    # search["row"] = 0
+                    # search["col"] = 0
 
                     search["process"] = collections.OrderedDict()
 
                     if work_sheet.max_row == 1:
-                        search["row"] = work_sheet.max_row
+                        search["cell_point"]["left_up"]["row"] = work_sheet.max_row
                     else:
-                        search["row"] = work_sheet.max_row + 3
+                        search["cell_point"]["left_up"]["row"] = work_sheet.max_row + 3
                     pass
+                    search["cell_point"]["left_up"]["col"] = 1
 
                     row_offset = 0
                     index = 0
-                    xlsx_file.writeCell(search["row"] , 1, k)  # write cell "search"
+                    xlsx_file.writeCell(search["cell_point"]["left_up"]["row"] , 1, k)  # write cell "search"
                           
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
@@ -530,7 +566,7 @@ if __name__ == "__main__":
                         cur_col = 1
                         row_offset += 1
                         index += 1
-                        xlsx_file.writeCell(search["row"] + row_offset, 1, index)
+                        xlsx_file.writeCell(search["cell_point"]["left_up"]["row"] + row_offset, 1, index)
 
                         for k_2, v_2 in v_1.items():
                             k_2 = k_2.encode("utf-8")
@@ -538,16 +574,16 @@ if __name__ == "__main__":
                             if k_2 == "process name":
                                 pass
                                 cur_col += 1
-                                if work_sheet.cell(search["row"], cur_col).value == None:
-                                        xlsx_file.writeCell(search["row"], cur_col, k_2)
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col, v_2)
+                                if work_sheet.cell(search["cell_point"]["left_up"]["row"], cur_col).value == None:
+                                        xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], cur_col, k_2)
+                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"] + row_offset, cur_col, v_2)
 
                             elif k_2 == "owner":
                                 pass
                                 cur_col += 1
-                                if work_sheet.cell(search["row"], cur_col).value == None:
-                                        xlsx_file.writeCell(search["row"], cur_col, k_2)
-                                xlsx_file.writeCell(search["row"] + row_offset, cur_col, v_2)
+                                if work_sheet.cell(search["cell_point"]["left_up"]["row"], cur_col).value == None:
+                                        xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], cur_col, k_2)
+                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"] + row_offset, cur_col, v_2)
 
                             elif k_2 == "log point":
                                 begin_logs = []
@@ -605,79 +641,38 @@ if __name__ == "__main__":
                                                 matchs.append(match)
                                                 break
 
+                                search["process"][k_1] = {}
+                                search["process"][k_1]["groups"] = collections.OrderedDict()
                                 if k_1 == "Category":
-                                    pass
-                                    search["process"][k_1] = {}
-                                    search["process"][k_1]["groups"] = collections.OrderedDict()
                                     pattern = re.compile(r'"(\d+)"')
-                                    if matchs:
-                                        for match in matchs:
-                                            group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
-                                            if group_log:
-                                                search_result = re.search(pattern, group_log["message"])
-                                                if search_result:
-                                                    group_name = category[search_result.group(1)]
-                                                    if search["process"][k_1]["groups"].has_key(group_name):
-                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
-                                                    else:
-                                                        search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
-                                                        search["process"][k_1]["groups"][group_name]["total"] = []
-                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
-                                                else:
-                                                    print("re.search failed")
-                                    
                                 elif k_1 == "OneBox":
-                                    pass
-                                    search["process"][k_1] = {}
-                                    search["process"][k_1]["groups"] = {}
                                     pattern = re.compile(r'"(.+)"')
-                                    if matchs:
-                                        for match in matchs:
-                                            group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
-                                            # print(group_log)
-
-                                            if group_log:
-                                                search_result = re.search(pattern, group_log["message"])
-                                                if search_result:
-                                                    group_name = search_result.group(1)
-                                                    # print(group_name)
-                                                    if search["process"][k_1]["groups"].has_key(group_name):
-                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
-                                                    else:
-                                                        search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
-                                                        search["process"][k_1]["groups"][group_name]["total"] = []
-                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
-                                    # if search["process"][k_1]["groups"]:
-                                    #     for group_k, group_v in search["process"][k_1]["groups"].items():
-                                    #         print(group_v)
-                                    # else:
-                                    #     print("in onebox : not found group")
-                                    
                                 elif k_1 == "Suggestion":
-                                    pass
-                                    search["process"][k_1] = {}
-                                    search["process"][k_1]["groups"] = {}
                                     pattern = re.compile(r'"(.+)"')
-                                    if matchs:
-                                        for match in matchs:
-                                            group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
-
-                                            if group_log:
-                                                search_result = re.search(pattern, group_log["message"])
-                                                if search_result:
+                                if matchs:
+                                    for match in matchs:
+                                        group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
+                                        if group_log:
+                                            search_result = ""
+                                            if k_1 == "Category":
+                                                search_result = re.search(r'"(\d+)"', group_log["message"])
+                                            elif k_1 == "OneBox":
+                                                search_result = re.search(r'"(.+)"', group_log["message"])
+                                            elif k_1 == "Suggestion":
+                                                search_result = re.search(r'"(.+)"', group_log["message"])
+                                            if search_result:
+                                                if k_1 == "Category":
+                                                    group_name = category[search_result.group(1)]
+                                                else:
                                                     group_name = search_result.group(1)
-                                                    if search["process"][k_1]["groups"].has_key(group_name):
-                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
-                                                    else:
-                                                        search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
-                                                        search["process"][k_1]["groups"][group_name]["total"] = []
-                                                        search["process"][k_1]["groups"][group_name]["total"].append(match)
-
-                                    # if search["process"][k_1]["groups"]:
-                                    #     for group_k, group_v in search["process"][k_1]["groups"].items():
-                                    #         print(group_v)
-                                    # else:
-                                    #     print("in onebox : not found group")
+                                                if search["process"][k_1]["groups"].has_key(group_name):
+                                                    search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                                else:
+                                                    search["process"][k_1]["groups"][group_name] = collections.OrderedDict()
+                                                    search["process"][k_1]["groups"][group_name]["total"] = []
+                                                    search["process"][k_1]["groups"][group_name]["total"].append(match)
+                                            else:
+                                                print("re.search failed")
 
                         if v.has_key("OneBox_QTARP_Cloud"):
                             if search.has_key("process"):
@@ -692,14 +687,13 @@ if __name__ == "__main__":
 
                                                     begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
                                                     if begin_log:
-                                                        end_log = nav_log.getLog(end_key, begin_log["index"])
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"],)
                                                         if end_log:
                                                             qtarp_cloud_match = {}
                                                             qtarp_cloud_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
                                                             qtarp_cloud_match["begin_index"] = begin_log["index"]
                                                             qtarp_cloud_match["end_index"] = end_log["index"]
                                                             group_value["OneBox_QTARP_Cloud"].append(qtarp_cloud_match)
-
 
                         if v.has_key("OneBox_QTARP_OnBoard"):
                             if search.has_key("process"):
@@ -734,7 +728,7 @@ if __name__ == "__main__":
                                                 for match in group_value["total"]:
                                                     begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
                                                     if begin_log:
-                                                        end_log = nav_log.getLog(end_key, begin_log["index"])
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"], match["end_index"] + 1)
                                                         if end_log:
                                                             tasdk_cloud_match = {}
                                                             tasdk_cloud_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
@@ -755,7 +749,7 @@ if __name__ == "__main__":
 
                                                     begin_log = nav_log.getLog(begin_key, match["begin_index"], match["end_index"] + 1)
                                                     if begin_log:
-                                                        end_log = nav_log.getLog(end_key, begin_log["index"], match["end_index"])
+                                                        end_log = nav_log.getLog(end_key, begin_log["index"], match["end_index"] + 1)
                                                         if end_log:
                                                             tasdk_onboard_match = {}
                                                             tasdk_onboard_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
@@ -766,19 +760,19 @@ if __name__ == "__main__":
                         group_col = cur_col + 1
                         sub_group_col = group_col + 1
                         avg_col = sub_group_col + 1
-                        if work_sheet.cell(search["row"], group_col).value == None:
-                            xlsx_file.writeCell(search["row"], group_col, "group")
-                        if work_sheet.cell(search["row"], sub_group_col).value == None:
-                            xlsx_file.writeCell(search["row"], sub_group_col, "sub group")
-                        if work_sheet.cell(search["row"], avg_col).value == None:
-                            xlsx_file.writeCell(search["row"], avg_col, "average time cost")
+                        if work_sheet.cell(search["cell_point"]["left_up"]["row"], group_col).value == None:
+                            xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], group_col, "group")
+                        if work_sheet.cell(search["cell_point"]["left_up"]["row"], sub_group_col).value == None:
+                            xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], sub_group_col, "sub group")
+                        if work_sheet.cell(search["cell_point"]["left_up"]["row"], avg_col).value == None:
+                            xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col, "average time cost")
                         
                         if search.has_key("process"):
                             if search["process"].has_key(k_1):
                                 for group_name, group_value in search["process"][k_1]["groups"].items():
-                                    xlsx_file.writeCell(search["row"]+row_offset, group_col, str(group_name))
+                                    xlsx_file.writeCell(search["cell_point"]["left_up"]["row"]+row_offset, group_col, str(group_name))
                                     for sub_group_name, sub_group_value in group_value.items():
-                                        xlsx_file.writeCell(search["row"]+row_offset, sub_group_col, str(sub_group_name))
+                                        xlsx_file.writeCell(search["cell_point"]["left_up"]["row"]+row_offset, sub_group_col, str(sub_group_name))
 
                                         match_cnt = 0
                                         sub_group_total = 0
@@ -789,30 +783,51 @@ if __name__ == "__main__":
                                                     pass
                                                     match_cnt += 1
                                                     sub_group_total += match["delta_time"]
-                                                    if work_sheet.cell(search["row"], avg_col + match_cnt).value == None:
-                                                        xlsx_file.writeCell(search["row"], avg_col + match_cnt, "time cost(ms)Round" + str(match_cnt))
-                                                    xlsx_file.writeCell(search["row"]+row_offset, avg_col + match_cnt, match["delta_time"])
+                                                    if work_sheet.cell(search["cell_point"]["left_up"]["row"], avg_col + match_cnt).value == None:
+                                                        xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col + match_cnt, "time cost(ms)Round" + str(match_cnt))
+                                                    xlsx_file.writeCell(search["cell_point"]["left_up"]["row"]+row_offset, avg_col + match_cnt, match["delta_time"])
                                                 sub_group_avg = round(sub_group_total/match_cnt, 3)
-                                                xlsx_file.writeCell(search["row"] + row_offset, avg_col, sub_group_avg)
+                                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"] + row_offset, avg_col, sub_group_avg)
+
+                                                if search["cell_point"]["right_down"]["col"] < avg_col + match_cnt:
+                                                    search["cell_point"]["right_down"]["col"] = avg_col + match_cnt
                                             else:
                                                 pass
-                                                if work_sheet.cell(search["row"], avg_col + match_cnt).value == None:
-                                                        xlsx_file.writeCell(search["row"], avg_col + 1, "time cost(ms)Round")
-                                                xlsx_file.writeCell(search["row"]+row_offset, avg_col + 1, sub_group_value[0]["delta_time"])
-                                        row_offset += 1       
+                                                if work_sheet.cell(search["cell_point"]["left_up"]["row"], avg_col + 1).value == None:
+                                                        xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col + 1, "time cost(ms)Round")
+                                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"]+row_offset, avg_col + 1, sub_group_value[0]["delta_time"])
+
+                                                if search["cell_point"]["right_down"]["col"] < avg_col + match_cnt:
+                                                    search["cell_point"]["right_down"]["col"] = avg_col + match_cnt
+                                        row_offset += 1 
+
+                    search["cell_point"]["right_down"]["row"] = work_sheet.max_row
+                    xlsx_file.mergeCell(sheet_name, begin_row=search["cell_point"]["left_up"]["row"], end_col=4,
+                                                    end_row=search["cell_point"]["right_down"]["row"])
+
+                    xlsx_file.setCellBorder(sheet_name, search["cell_point"]["left_up"]["row"],
+                                                        search["cell_point"]["left_up"]["col"],
+                                                        search["cell_point"]["right_down"]["row"],
+                                                        search["cell_point"]["right_down"]["col"],)
 
                 elif k == "MapDisplay":
                     pass
                     mapdisplay = {}
-                    mapdisplay["row"] = 0
+                    mapdisplay["cell_point"]={}
+                    mapdisplay["cell_point"]["left_up"]={}
+                    mapdisplay["cell_point"]["right_down"]={}
+                    mapdisplay["cell_point"]["right_down"]["row"] = 1
+                    mapdisplay["cell_point"]["right_down"]["col"] = 1
+                    
                     mapdisplay["object"] = collections.OrderedDict()
                     
                     if work_sheet.max_row == 1:
-                        mapdisplay["row"] = work_sheet.max_row
+                        mapdisplay["cell_point"]["left_up"]["row"] = work_sheet.max_row
                     else:
-                        mapdisplay["row"] = work_sheet.max_row + 3
+                        mapdisplay["cell_point"]["left_up"]["row"] = work_sheet.max_row + 3
+                    mapdisplay["cell_point"]["left_up"]["col"] = 1
 
-                    xlsx_file.writeCell(mapdisplay["row"], 1, k)
+                    xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"], 1, k)
 
                     row_offset = 0
                     index = 0
@@ -824,22 +839,22 @@ if __name__ == "__main__":
                         cur_col = 1
                         row_offset += 1
                         index += 1
-                        xlsx_file.writeCell(mapdisplay["row"] + row_offset, 1, index)
+                        xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, 1, index)
 
                         for k_2, v_2 in v_1.items():
                             cur_col += 1
                             k_2 = k_2.encode("utf-8")
                             if k_2 == "process name":
-                                if work_sheet.cell(mapdisplay["row"], cur_col).value == None:
-                                    xlsx_file.writeCell(mapdisplay["row"], cur_col, k_2)
+                                if work_sheet.cell(mapdisplay["cell_point"]["left_up"]["row"], cur_col).value == None:
+                                    xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"], cur_col, k_2)
 
-                                xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col, v_2)
+                                xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, cur_col, v_2)
 
                             elif k_2 == "owner":
-                                if work_sheet.cell(mapdisplay["row"], cur_col).value == None:
-                                    xlsx_file.writeCell(mapdisplay["row"], cur_col, k_2)
+                                if work_sheet.cell(mapdisplay["cell_point"]["left_up"]["row"], cur_col).value == None:
+                                    xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"], cur_col, k_2)
 
-                                xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col, v_2)
+                                xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, cur_col, v_2)
                             if k_2 == "log point":
                                 mapdisplay["object"][k_1]["group"] = collections.OrderedDict()
                                 mapdisplay["object"][k_1]["total"] = {}
@@ -865,12 +880,9 @@ if __name__ == "__main__":
                                     
                                     while index1 < len(begin_logs) and index2 < len(end_logs):
                                         match = {}
-                                        match["index"] = 0
                                         match["begin_index"] = 0
                                         match["end_index"] = 0
                                         match["delta_time"] = None
-                                        match["begin_message"] = ""
-                                        match["end_message"] = ""
                                         begin_index = begin_logs[index1]["index"]
                                         end_index = end_logs[index2]["index"]
 
@@ -916,19 +928,34 @@ if __name__ == "__main__":
                                             v["avg"] = None
 
                                 if mapdisplay["object"][k_1]["group"]:
-                                    if work_sheet.cell(mapdisplay["row"], cur_col).value == None:
-                                        xlsx_file.writeCell(mapdisplay["row"], cur_col, "average time comst(ms)")
+                                    if work_sheet.cell(mapdisplay["cell_point"]["left_up"]["row"], cur_col).value == None:
+                                        xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"], cur_col, "average time comst(ms)")
                                 
-                                for k, v in mapdisplay["object"][k_1]["group"].items():
-                                    if v:
-                                        xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col, v["avg"])
+                                    for k, v in mapdisplay["object"][k_1]["group"].items():
+                                        if v:
+                                            xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, cur_col, v["avg"])
 
-                                        match_offset = 0
-                                        for match in v["matchs"]:
-                                            match_offset += 1
-                                            if work_sheet.cell(mapdisplay["row"] + row_offset, cur_col + match_offset).value == None:
-                                                xlsx_file.writeCell(mapdisplay["row"], cur_col + match_offset, "time cost(ms)Round" + str(match_offset))
-                                            xlsx_file.writeCell(mapdisplay["row"] + row_offset, cur_col + match_offset, match["delta_time"])
+                                            match_offset = 0
+                                            for match in v["matchs"]:
+                                                match_offset += 1
+                                                if work_sheet.cell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, cur_col + match_offset).value == None:
+                                                    xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"], cur_col + match_offset, "time cost(ms)Round" + str(match_offset))
+                                                xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, cur_col + match_offset, match["delta_time"])
+                                            if mapdisplay["cell_point"]["right_down"]["col"] < cur_col + match_offset:
+                                                mapdisplay["cell_point"]["right_down"]["col"] = cur_col + match_offset
+                                else:
+                                    if mapdisplay["cell_point"]["right_down"]["col"] < cur_col - 1:
+                                        mapdisplay["cell_point"]["right_down"]["col"] = cur_col - 1
+
+                    mapdisplay["cell_point"]["right_down"]["row"] = work_sheet.max_row
+                    xlsx_file.mergeCell(sheet_name, begin_row=mapdisplay["cell_point"]["left_up"]["row"],
+                                                    end_row=mapdisplay["cell_point"]["right_down"]["row"])
+                    
+                    xlsx_file.setCellBorder(sheet_name, mapdisplay["cell_point"]["left_up"]["row"],
+                                                        mapdisplay["cell_point"]["left_up"]["col"],
+                                                        mapdisplay["cell_point"]["right_down"]["row"],
+                                                        mapdisplay["cell_point"]["right_down"]["col"],)
+                                            
         
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
