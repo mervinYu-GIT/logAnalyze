@@ -171,7 +171,6 @@ if __name__ == "__main__":
                                                         boot_up["cell_point"]["right_down"]["row"],
                                                         boot_up["cell_point"]["right_down"]["col"],
                                                         )
-
           
                 elif k == "Routing":
                     pass
@@ -179,26 +178,10 @@ if __name__ == "__main__":
                     routing["cell_point"] = {}
                     routing["cell_point"]["left_up"] = {}
                     routing["cell_point"]["right_down"] = {}
-                    routing["cell_point"]["right_down"]["row"] = 0
-                    routing["cell_point"]["right_down"]["col"] = 0
+                    routing["cell_point"]["right_down"]["row"] = 1
+                    routing["cell_point"]["right_down"]["col"] = 1
 
-                    routing["Calculate Route"] = {}
-                    routing["Calculate Route"]["group"] = collections.OrderedDict()
-                    routing["Calculate Route"]["row"] = 0
-                    routing["Calculate Route"]["begin"] = ""
-                    routing["Calculate Route"]["end"] = ""
-                    routing["Calculate Route"]["matchs"] = []
-                    routing["Calculate Route"]["process name"] = ""
-                    routing["Calculate Route"]["owner"] = ""
-
-                    routing["Calculate Guidance"] = {}
-                    routing["Calculate Guidance"]["group"] = collections.OrderedDict()
-                    routing["Calculate Guidance"]["row"] = 0
-                    routing["Calculate Guidance"]["begin"] = ""
-                    routing["Calculate Guidance"]["end"] = ""
-                    routing["Calculate Guidance"]["matchs"] = []
-                    routing["Calculate Guidance"]["process name"] = ""
-                    routing["Calculate Guidance"]["owner"] = ""
+                    routing["process"] = collections.OrderedDict()
 
                     if work_sheet.max_row == 1:
                         routing["cell_point"]["left_up"]["row"] = work_sheet.max_row
@@ -207,331 +190,206 @@ if __name__ == "__main__":
                     routing["cell_point"]["left_up"]["col"] = 1
 
                     row_offset = 0
+                    cur_row = routing["cell_point"]["left_up"]["row"]
+                    cur_col = 1
                     index = 0
                     xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"] , 1, k)
+
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
-
-                        if k_1 == "Calculate Route":
-                            row_offset += 1
-                            routing["Calculate Route"]["row"] = routing["cell_point"]["left_up"]["row"] + row_offset
-                            cal_route_row = routing["Calculate Route"]["row"]
-                            
-                            index += 1
-                            xlsx_file.writeCell(cal_route_row, 1, index)
-
-                            col_offset = 1
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":    # ----------process name --------------                 
-                                    col_offset += 1
-                                    if work_sheet.cell(routing["cell_point"]["left_up"]["row"], col_offset).value == None:
-                                        xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], col_offset, k_2)
-
-                                    xlsx_file.writeCell(cal_route_row, \
-                                         col_offset, v_2)
-                                elif k_2 == "owner":        # -----------owner----------------------
-                                    col_offset += 1
-                                    if work_sheet.cell(routing["cell_point"]["left_up"]["row"], col_offset).value == None:
-                                        xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], col_offset, k_2)
-
-                                    xlsx_file.writeCell(cal_route_row, \
-                                         col_offset, v_2)
-
-                                elif k_2 == "log point":
-                                    begin_logs = []
-                                    end_logs = []
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-                                    routing["Calculate Route"]["begin"] = begin
-                                    routing["Calculate Route"]["end"] = end
-                                    
-                                    if begin:
-                                        begin_logs = nav_log.getLogs(begin)
-                                    else:
-                                        continue
-                                    
-                                    if end:
-                                        end_logs = nav_log.getLogs(end)
-                                    else:
-                                        continue
-
-                                    if begin_logs and end_logs:
-                                        index1 = 0
-                                        index2 = 0
-                                        matchs = []
-                                        while index1 < len(begin_logs) and index2 < len(end_logs):
-                                            match = {}
-                                            match["index"] = 0
-                                            match["name"] = ""
-                                            match["delta_time"] = None
-                                            begin_index = begin_logs[index1]["index"]
-                                            end_index = end_logs[index2]["index"]
-
-                                            if begin_index >= end_index:
-                                                index2 += 1
-                                                continue
-                                            else:
-                                                if index1 != len(begin_logs) - 1:
-                                                    next_begin_index = begin_logs[index1 + 1]["index"]
-                                                else:
-                                                    match["index"] = begin_logs[index1]["index"]          # get match "index"
-                                                    delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
-                                                    match["delta_time"] = delta_time                      # get match "delta_time"
-
-                                                    key = "Sending:  origin"
-                                                    begin_index = match["index"]
-                                                    end_index = end_logs[index2]["index"]
-                                                    result = nav_log.getLog(key, begin_index, end_index)
-                                                    if result:
-                                                        msg = result["message"]
-                                                        search_point_begin = msg.index("formatted_address:")
-                                                        dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1]
-                                                        match["name"] = dst_name                  # get match "name"
-
-                                                    else:
-                                                        key = "Route request:"
-                                                        result = nav_log.getLog(key, begin_index, end_index)
-                                                        if result:
-                                                            msg = result["message"]
-                                                            search_point_begin = msg.index("formatted_address:")
-                                                            dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1]
-                                                            match["name"] = dst_name             # get match "name"
-                                                        else:
-                                                            match["name"] = None                   # if no result, set None
-
-                                                    matchs.append(match)
-
-                                                    break
-                                                if next_begin_index < end_index:
-                                                    index1 += 1
-                                                    continue
-                                                else:
-                                                    match["index"] = begin_logs[index1]["index"]          # get match "index"
-                                                    delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
-                                                    match["delta_time"] = delta_time                      # get match "delta_time"
-
-                                                    key = "Sending:  origin"
-                                                    begin_index = match["index"]
-                                                    end_index = end_logs[index2]["index"]
-                                                    result = nav_log.getLog(key, begin_index, end_index)
-                                                    if result:
-                                                        msg = result["message"]
-                                                        search_point_begin = msg.index("formatted_address:")
-                                                        dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1]
-                                                        match["name"] = dst_name                  # get match "name"
-
-                                                    else:
-                                                        key = "Route request:"
-                                                        result = nav_log.getLog(key, begin_index, end_index)
-                                                        if result:
-                                                            msg = result["message"]
-                                                            search_point_begin = msg.index("formatted_address:")
-                                                            dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1]
-                                                            match["name"] = dst_name             # get match "name"
-                                                        else:
-                                                            match["name"] = None                   # if no result, set None
-
-                                                    matchs.append(match)
-                                                    index1 += 1
-                                                    index2 += 2
-                                        # print(matchs)
-                                        routing["Calculate Route"]["matchs"] = matchs
-              
-                        elif k_1 == "Calculate Guidance":
-                            for k_2, v_2 in v_1.items():
-                                k_2 = k_2.encode("utf-8")
-                                if k_2 == "process name":    # ----------process name --------------    
-                                    routing["Calculate Guidance"]["process name"] = v_2.encode("utf-8")            
-
-                                elif k_2 == "owner":        # -----------owner----------------------
-                                    routing["Calculate Guidance"]["owner"] = v_2.encode("utf-8")            
-
-                                elif k_2 == "log point":
-                                    begin_logs = []
-                                    end_logs = []
-                                    begin = v_2["begin"].encode("utf-8")
-                                    end = v_2["end"].encode("utf-8")
-
-                                    routing["Calculate Guidance"]["begin"] = begin
-                                    routing["Calculate Guidance"]["end"] = end
-                                    
-                                    if begin:
-                                        begin_logs = nav_log.getLogs(begin)
-                                    else:
-                                        continue
-                                    
-                                    if end:
-                                        end_logs = nav_log.getLogs(end)
-                                    else:
-                                        continue
-
-                                    if begin_logs and end_logs:
-                                        index1 = 0
-                                        index2 = 0
-                                        matchs = []
-                                        while index1 < len(begin_logs) and index2 < len(end_logs):
-                                            match = {}
-                                            match["index"] = 0
-                                            match["name"] = ""
-                                            match["delta_time"] = None
-                                            begin_index = begin_logs[index1]["index"]
-                                            end_index = end_logs[index2]["index"]
-
-                                            if begin_index >= end_index:
-                                                index2 += 1
-                                                continue
-                                            else:
-                                                if index1 != len(begin_logs) - 1:
-                                                    next_begin_index = begin_logs[index1 + 1]["index"]
-                                                else:
-                                                    match["index"] = begin_logs[index1]["index"]          # get match "index"
-                                                    delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
-                                                    match["delta_time"] = delta_time                      # get match "delta_time"
-                          
-                                                    matchs.append(match)
-                                                    break
-                                                if next_begin_index < end_index:
-                                                    index1 += 1
-                                                    continue
-                                                else:
-                                                    match["index"] = begin_logs[index1]["index"]          # get match "index"
-                                                    delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
-                                                    match["delta_time"] = delta_time                      # get match "delta_time"
-
-                                                    matchs.append(match)
-                                                    index1 += 1
-                                                    index2 += 2
-                                        routing["Calculate Guidance"]["matchs"] = matchs
-                    
-                    cal_route = routing["Calculate Route"]
-                    cal_guidance = routing["Calculate Guidance"]
-                    
-                    for guidance_match in cal_guidance["matchs"]:
-                        route_match_index = 0
-                        while route_match_index < len(cal_route["matchs"]):
-                            cur_route_match = cal_route["matchs"][route_match_index]
-                            if route_match_index == len(cal_route["matchs"]) - 1:
-                                if guidance_match["index"] > cur_route_match["index"]:
-                                    guidance_match["name"] = cur_route_match["name"]
-                                    break
-                            else: 
-                                next_route_match = cal_route["matchs"][route_match_index + 1]
-                                if guidance_match["index"] > cur_route_match["index"] and \
-                                    guidance_match["index"] < next_route_match["index"]:
-                                    guidance_match["name"] = cur_route_match["name"]
-                                    break
-                            route_match_index += 1
-
-                    # groups
-                    cal_route_matchs = cal_route["matchs"]
-                    cal_guidance_matchs = cal_guidance["matchs"]
-                    
-                    route_group = cal_route["group"]
-                    for match in cal_route_matchs:
-                        if route_group.has_key(match["name"]):
-                            route_group[match["name"]].append(match)
-                        else:
-                            route_group[match["name"]] = []
-                            route_group[match["name"]].append(match)
-
-                    guidance_group = cal_guidance["group"]
-                    for match in cal_guidance_matchs:
-                        if guidance_group.has_key(match["name"]):
-                            guidance_group[match["name"]].append(match)
-                        else:
-                            guidance_group[match["name"]] = []
-                            guidance_group[match["name"]].append(match)
-
-                    
-                    col_offset += 1
-                    group_col = col_offset
-                    route_row_offset = 0
-                   
-                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], col_offset, "group")
-
-                    for k_route_group, v_route_group in route_group.items():
-                        route_index = 0
-                        xlsx_file.writeCell(cal_route_row + route_row_offset, group_col, k_route_group)
-                        for member in v_route_group:
-                            route_index += 1
-                            if len(v_route_group) > 1:
-                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1, "time cost(ms)Round" + str(route_index))
-                            else:
-                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + route_index + 1, "time cost(ms)Round")
-
-                            xlsx_file.writeCell(cal_route_row + route_row_offset, \
-                                group_col + route_index + 1, round(member["delta_time"].total_seconds(), 3))
-
-                        route_row_offset += 1
+                        begin_logs = []
+                        end_logs = []
+                        begin = v_1["log point"]["begin"].encode("utf-8")
+                        end = v_1["log point"]["end"].encode("utf-8")
                         
-                        if routing["cell_point"]["right_down"]["col"] < group_col + route_index + 1:
-                            routing["cell_point"]["right_down"]["col"] = group_col + route_index + 1
-
-                    cal_guidance_row = cal_route_row + route_row_offset
-                    index += 1
-                    xlsx_file.writeCell(cal_guidance_row, 1, index)
-                    xlsx_file.writeCell(cal_guidance_row, 2, routing["Calculate Guidance"]["process name"])
-                    xlsx_file.writeCell(cal_guidance_row, 3, routing["Calculate Guidance"]["owner"])
-                    guidance_row_offset = 0
-                    for k_guidance_group, v_guidance_group in guidance_group.items():
-                        guidance_index = 0
-                        xlsx_file.writeCell(cal_guidance_row + guidance_row_offset, group_col, k_guidance_group)
-                        for member in v_guidance_group:
-                            guidance_index += 1
-                            if len(v_guidance_group) > 1:
-                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1, "time cost(ms)Round" + str(guidance_index))
-                            else:
-                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1).value == None:
-                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col + guidance_index + 1, "time cost(ms)Round")
-
-                            xlsx_file.writeCell(cal_guidance_row + guidance_row_offset, \
-                                group_col + guidance_index + 1, round(member["delta_time"].total_seconds(), 3))
-
-                        guidance_row_offset += 1
+                        if begin:
+                            begin_logs = nav_log.getLogs(begin)
+                        else:
+                            continue
                         
-                        if routing["cell_point"]["right_down"]["col"] < group_col + guidance_index + 1:
-                            routing["cell_point"]["right_down"]["col"] = group_col + guidance_index + 1  
+                        if end:
+                            end_logs = nav_log.getLogs(end)
+                        else:
+                            continue
 
-                    avg_col = col_offset + 1
-                    avg_row_offset = 0
-                    
-                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], avg_col, "average time cost(ms)")
-                    for k_route_group, v_route_group in route_group.items():
-                        avg_cnt = 0
-                        avg_total = 0
-                        if len(v_route_group) > 1:
-                            for member in v_route_group:
-                                avg_total += member["delta_time"].total_seconds()
-                                avg_cnt += 1
-                            avg = round(avg_total / avg_cnt, 3)
-                            xlsx_file.writeCell(cal_route_row + avg_row_offset, avg_col, avg)
-                        avg_row_offset += 1
+                        if begin_logs and end_logs:
+                            index1 = 0
+                            index2 = 0
+                            matchs = []
+                            while index1 < len(begin_logs) and index2 < len(end_logs):
+                                match = {}
+                                begin_index = begin_logs[index1]["index"]
+                                end_index = end_logs[index2]["index"]
 
-                    avg_row_offset = 0
-                    for k_guidance_group, v_guidance_group in guidance_group.items():
-                        avg_cnt = 0
-                        avg_total = 0
-                        if len(v_guidance_group) > 1:
-                            for member in v_guidance_group:
-                                avg_total += member["delta_time"].total_seconds()
-                                avg_cnt += 1
-                            avg = round(avg_total / avg_cnt, 3)
-                            xlsx_file.writeCell(cal_guidance_row + avg_row_offset, avg_col, avg)
-                        avg_row_offset += 1
+                                if begin_index >= end_index:
+                                    index2 += 1
+                                    continue
+                                else:
+                                    if index1 != len(begin_logs) - 1:
+                                        next_begin_index = begin_logs[index1 + 1]["index"]
+                                    else:
+                                        match["begin_index"] = begin_logs[index1]["index"]          # get match "index"
+                                        match["end_index"] = end_logs[index2]["index"]
+                                        match["delta_time"] = end_logs[index2]["time"] - begin_logs[index1]["time"]  # get match "delta_time"
+
+                                        matchs.append(match)
+
+                                        break
+                                    if next_begin_index < end_index:
+                                        index1 += 1
+                                        continue
+                                    else:
+                                        match["begin_index"] = begin_logs[index1]["index"]          # get match "index"
+                                        match["end_index"] = end_logs[index2]["index"]
+                                        match["delta_time"] = end_logs[index2]["time"] - begin_logs[index1]["time"]  # get match "delta_time"                                                             
+
+                                        matchs.append(match)
+                                        index1 += 1
+                                        index2 += 2
+                            if routing["process"].has_key(k_1):
+                                routing["process"][k_1]["matchs"] = []
+                                routing["process"][k_1]["matchs"] = matchs[:]
+                            else:
+                                routing["process"][k_1] = {}
+                                routing["process"][k_1]["matchs"] = matchs[:]
+
+                    if routing["process"] and routing["process"]["Calculate Route"]\
+                                          and routing["process"]["Calculate Route"]["matchs"]:
+                        search_key = "Sending:  origin"
+                        cal_route_index = 0
+                        cal_route_matchs = routing["process"]["Calculate Route"]["matchs"][:]
+                        while cal_route_index < len(cal_route_matchs):
+                            cur_route_match = cal_route_matchs[cal_route_index]
+                            if cal_route_index == len(cal_route_matchs) - 1:
+                                result = nav_log.getLog(search_key, cur_route_match["begin_index"])
+                                if not result:
+                                    search_key = "Route request:"
+                                    result = nav_log.getLog(search_key, cur_route_match["begin_index"])
+                                    
+                            else:
+                                next_match = cal_route_matchs[cal_route_index + 1]
+                                result = result = nav_log.getLog(search_key, cur_route_match["begin_index"], next_match["end_index"])
+                                if not result:
+                                    search_key = "Route request:"
+                                    result = nav_log.getLog(search_key, cur_route_match["begin_index"], next_match["end_index"])
+
+                            if result:
+                                msg = result["message"]
+                                search_point_begin = msg.index("formatted_address:")
+                                dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1]
+                                if routing["process"]["Calculate Route"].has_key("groups"):
+                                    if routing["process"]["Calculate Route"]["groups"].has_key(dst_name):
+                                        routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
+                                    else:
+                                        routing["process"]["Calculate Route"]["groups"][dst_name] = {}
+                                        routing["process"]["Calculate Route"]["groups"][dst_name]["total"] = []
+                                        routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
+                                else:
+                                    routing["process"]["Calculate Route"]["groups"] = collections.OrderedDict()
+                                    routing["process"]["Calculate Route"]["groups"][dst_name] = {}
+                                    routing["process"]["Calculate Route"]["groups"][dst_name]["total"] = []
+                                    routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
+                                
+                                if routing["process"].has_key("Calculate Guidance") \
+                                and routing["process"]["Calculate Guidance"].has_key("matchs") \
+                                and routing["process"]["Calculate Guidance"]["matchs"]:
+                                    cal_guidance_matchs = routing["process"]["Calculate Guidance"]["matchs"][:]
+                                    if cal_route_index == len(cal_route_matchs) - 1:
+                                        for cal_guidance_match in cal_guidance_matchs:
+                                            if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]:
+                                                if routing["process"]["Calculate Guidance"].has_key("groups"):
+                                                    if routing["process"]["Calculate Guidance"]["groups"].has_key(dst_name):
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                    else:
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                else:
+                                                    routing["process"]["Calculate Guidance"]["groups"] = collections.OrderedDict()
+                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
+                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
+                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                            
+                                    else:
+                                        for cal_guidance_match in cal_guidance_matchs:
+                                            if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]\
+                                                and cal_guidance_match["end_index"] < cal_route_matchs[cal_route_index+1]["end_index"]:
+                                                if routing["process"]["Calculate Guidance"].has_key("groups"):
+                                                    if routing["process"]["Calculate Guidance"]["groups"].has_key(dst_name):
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                    else:
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
+                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                else:
+                                                    routing["process"]["Calculate Guidance"]["groups"] = collections.OrderedDict()
+                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
+                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
+                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                
+                            cal_route_index += 1
+
+                    cur_row = routing["cell_point"]["left_up"]["row"] + 1
+                    for k_1, v_1 in v.items():
+                        k_1 = k_1.encode("utf-8")
+                        index += 1
+                        merge_cell_start_row = cur_row
+                        xlsx_file.writeCell(cur_row, routing["cell_point"]["left_up"]["col"], index)
+
+                        cur_col = routing["cell_point"]["left_up"]["col"]
+                        for k_2, v_2 in v_1.items():
+                            k_2 = k_2.encode("utf-8")
+                            if k_2 == "log point":
+                                pass
+                                group_col = cur_col + 1
+                                avg_col = group_col + 1
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], group_col).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], group_col, "groups")
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], avg_col).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], avg_col, "average time cost")
+                                if routing["process"].has_key(k_1) and routing["process"][k_1].has_key("groups")\
+                                    and routing["process"][k_1]["groups"]:
+                                    for group_name, group_value in routing["process"][k_1]["groups"].items():
+                                        xlsx_file.writeCell(cur_row, group_col, group_name)
+                                        total = 0
+                                        cnt = 0
+                                        if len(group_value["total"]) > 1:
+                                            for result in group_value["total"]:
+                                                total += result["delta_time"].total_seconds()
+                                                cnt += 1
+                                                xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], avg_col+cnt, "time cost(ms)Round"+str(cnt))
+                                                xlsx_file.writeCell(cur_row, avg_col+cnt, result["delta_time"].total_seconds())
+                                            avg = round(total/cnt, 3)
+                                            xlsx_file.writeCell(cur_row, avg_col, avg)
+                                            if routing["cell_point"]["right_down"]["col"] < avg_col + cnt:
+                                                routing["cell_point"]["right_down"]["col"] = avg_col + cnt
+                                        elif len(group_value["total"]) == 1:
+                                            if work_sheet.cell(routing["cell_point"]["left_up"]["row"], avg_col+1).value == None:
+                                                xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], avg_col+1, "time cost(ms)")
+                                            xlsx_file.writeCell(cur_row, avg_col+1, group_value["total"][0]["delta_time"].total_seconds())
+                                            if routing["cell_point"]["right_down"]["col"] < avg_col + 1:
+                                                routing["cell_point"]["right_down"]["col"] = avg_col + 1
+                                        
+                                        cur_row += 1
+                                    merge_cell_end_row = cur_row
+                                    xlsx_file.mergeCell(sheet_name, begin_row=merge_cell_start_row,
+                                                                end_row=merge_cell_end_row-1)
+                                else:
+                                    if routing["cell_point"]["right_down"]["col"] < avg_col:
+                                        routing["cell_point"]["right_down"]["col"] = avg_col
+
+                            else:
+                                cur_col += 1
+                                if work_sheet.cell(routing["cell_point"]["left_up"]["row"], cur_col).value == None:
+                                    xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], cur_col, k_2)
+                                xlsx_file.writeCell(cur_row, cur_col, v_2)
 
                     routing["cell_point"]["right_down"]["row"] = work_sheet.max_row
-                    xlsx_file.mergeCell(sheet_name, begin_row=routing["cell_point"]["left_up"]["row"],
-                                                    end_row=routing["cell_point"]["right_down"]["row"])
-
                     xlsx_file.setCellBorder(sheet_name, routing["cell_point"]["left_up"]["row"],
                                                         routing["cell_point"]["left_up"]["col"],
                                                         routing["cell_point"]["right_down"]["row"],
-                                                        routing["cell_point"]["right_down"]["col"],)   
+                                                        routing["cell_point"]["right_down"]["col"],) 
+
                                                         
                 elif k == "Search":
                     search = {}
@@ -540,9 +398,6 @@ if __name__ == "__main__":
                     search["cell_point"]["right_down"] = {}
                     search["cell_point"]["right_down"]["row"] = 1
                     search["cell_point"]["right_down"]["col"] = 1
-                    
-                    # search["row"] = 0
-                    # search["col"] = 0
 
                     search["process"] = collections.OrderedDict()
 
@@ -651,7 +506,7 @@ if __name__ == "__main__":
                                     pattern = re.compile(r'"(.+)"')
                                 if matchs:
                                     for match in matchs:
-                                        group_log = nav_log.getLog(v_1["key_name"]["search_key"], match["begin_index"], match["end_index"] + 1)
+                                        group_log = nav_log.getLog(v_1["key_name"]["search_key"].encode("utf-8"), match["begin_index"], match["end_index"] + 1)
                                         if group_log:
                                             search_result = ""
                                             if k_1 == "Category":
@@ -757,18 +612,21 @@ if __name__ == "__main__":
                                                             tasdk_onboard_match["end_index"] = end_log["index"]
                                                             group_value["OneBox_TASDK_OnBoard"].append(tasdk_onboard_match) 
 
-                        group_col = cur_col + 1
-                        sub_group_col = group_col + 1
-                        avg_col = sub_group_col + 1
-                        if work_sheet.cell(search["cell_point"]["left_up"]["row"], group_col).value == None:
-                            xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], group_col, "group")
-                        if work_sheet.cell(search["cell_point"]["left_up"]["row"], sub_group_col).value == None:
-                            xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], sub_group_col, "sub group")
-                        if work_sheet.cell(search["cell_point"]["left_up"]["row"], avg_col).value == None:
-                            xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col, "average time cost")
+                        # let's fill xlsx
+                        if search["process"] and search["process"].has_key(k_1) and search["process"][k_1] \
+                                             and search["process"][k_1].has_key("groups") and search["process"][k_1]["groups"]:
+                            group_col = cur_col + 1
+                            sub_group_col = group_col + 1
+                            avg_col = sub_group_col + 1
+                            if work_sheet.cell(search["cell_point"]["left_up"]["row"], group_col).value == None:
+                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], group_col, "group")
+                            if work_sheet.cell(search["cell_point"]["left_up"]["row"], sub_group_col).value == None:
+                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], sub_group_col, "sub group")
+                            if work_sheet.cell(search["cell_point"]["left_up"]["row"], avg_col).value == None:
+                                xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col, "average time cost")
                         
-                        if search.has_key("process"):
-                            if search["process"].has_key(k_1):
+                            if search["process"][k_1].has_key("groups") and search["process"][k_1]["groups"]:
+                                merge_cell_begin_row = search["cell_point"]["left_up"]["row"] + row_offset
                                 for group_name, group_value in search["process"][k_1]["groups"].items():
                                     xlsx_file.writeCell(search["cell_point"]["left_up"]["row"]+row_offset, group_col, str(group_name))
                                     for sub_group_name, sub_group_value in group_value.items():
@@ -797,13 +655,18 @@ if __name__ == "__main__":
                                                         xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col + 1, "time cost(ms)Round")
                                                 xlsx_file.writeCell(search["cell_point"]["left_up"]["row"]+row_offset, avg_col + 1, sub_group_value[0]["delta_time"])
 
-                                                if search["cell_point"]["right_down"]["col"] < avg_col + match_cnt:
-                                                    search["cell_point"]["right_down"]["col"] = avg_col + match_cnt
+                                                if search["cell_point"]["right_down"]["col"] < avg_col + 1:
+                                                    search["cell_point"]["right_down"]["col"] = avg_col + 1
                                         row_offset += 1 
+                                row_offset -= 1
+                                merge_cell_end_row = search["cell_point"]["left_up"]["row"] + row_offset
+                                xlsx_file.mergeCell(sheet_name, begin_row=merge_cell_begin_row, end_col=4,
+                                                end_row=merge_cell_end_row)
+                        else:
+                            if search["cell_point"]["right_down"]["col"] < cur_col:
+                                search["cell_point"]["right_down"]["col"] = cur_col
 
                     search["cell_point"]["right_down"]["row"] = work_sheet.max_row
-                    xlsx_file.mergeCell(sheet_name, begin_row=search["cell_point"]["left_up"]["row"], end_col=4,
-                                                    end_row=search["cell_point"]["right_down"]["row"])
 
                     xlsx_file.setCellBorder(sheet_name, search["cell_point"]["left_up"]["row"],
                                                         search["cell_point"]["left_up"]["col"],
@@ -818,7 +681,7 @@ if __name__ == "__main__":
                     mapdisplay["cell_point"]["right_down"]={}
                     mapdisplay["cell_point"]["right_down"]["row"] = 1
                     mapdisplay["cell_point"]["right_down"]["col"] = 1
-                    
+
                     mapdisplay["object"] = collections.OrderedDict()
                     
                     if work_sheet.max_row == 1:
@@ -954,8 +817,7 @@ if __name__ == "__main__":
                     xlsx_file.setCellBorder(sheet_name, mapdisplay["cell_point"]["left_up"]["row"],
                                                         mapdisplay["cell_point"]["left_up"]["col"],
                                                         mapdisplay["cell_point"]["right_down"]["row"],
-                                                        mapdisplay["cell_point"]["right_down"]["col"],)
-                                            
+                                                        mapdisplay["cell_point"]["right_down"]["col"],)                                       
         
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)

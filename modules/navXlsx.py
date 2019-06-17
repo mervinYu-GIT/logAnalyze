@@ -90,10 +90,10 @@ class NavXlsxFile:
     def mergeCell(self, sheet_name, begin_row, end_row, begin_col=1, end_col=3):
         ws = self.work_book[sheet_name]
         cells = [(cell_row, cell_col) for cell_col in range(begin_col, end_col+1)
-                                      for cell_row in range(begin_row+1, end_row+1)]
+                                      for cell_row in range(begin_row, end_row+1)]
         
         for cur_col in range(begin_col, end_col+1):
-            cells = [(cell_row, cur_col) for cell_row in range(begin_row+1, end_row+1)]
+            cells = [(cell_row, cur_col) for cell_row in range(begin_row, end_row+1)]
 
             merge_flag = 0
             blank_index = 0
@@ -112,6 +112,8 @@ class NavXlsxFile:
                                         end_row=cur_cell[0]-1, end_column=cur_cell[1])
                             cell_index -= 1
                             blank_index = 0
+                        else:
+                            cell_index -= 1
                 else:
                     pass
                     blank_index += 1
