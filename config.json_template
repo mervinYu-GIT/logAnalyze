@@ -126,9 +126,6 @@
 				"begin": "P12.R083.01  : One box search : Start Marker:",
 				"end": "P12.R083.01  : One box search : End Marker:"
 			},
-			"subProcess":{
-
-			}
 		},
 		"Category": {
 			"process name": "Category",
@@ -140,9 +137,6 @@
 				"begin": "P12.R083.01  : Poi category search : Start Marker:",
 				"end": "P12.R083.01  : Poi category search : End Marker:"
 			},
-			"subProcess":{
-
-			}
 		},
 		"Suggestion": {
 			"process name": "Suggestion",
@@ -154,9 +148,6 @@
 				"begin": "QAutoSuggestionSearchFlowImpl send query",
 				"end": "QAutoSuggestionearchFlowImpl receive onAutoSuggestionSearchFinish result"
 			},
-			"subProcess":{
-	
-			}
 		}
 	},
 	"MapDisplay": {
