@@ -3,7 +3,7 @@
 
 import os, sys
 from os import path
-import json  
+import json
 import re
 from datetime import datetime
 from argparse import ArgumentParser
@@ -30,36 +30,8 @@ category = {
     "111":"Hotel"
 }
 
-if __name__ == "__main__":
-    arg_parser = ArgumentParser()
-    arg_parser.add_argument('log_files', nargs = '*', help = "input log file")
-    arg_parser.add_argument('--cfg', help="config file, eg: path/config.json")
-    arg_parser.add_argument('--xlsx', help='xlsx file')
-    args = arg_parser.parse_args()
 
-    log_files = []
-    if args.log_files:
-        for f_p in args.log_files:
-            if os.path.isdir(f_p):
-                files = getFileList(f_p)
-                for file in files:
-                    if '.log' in file:
-                        log_files.append(f_p + file)
-            elif '.log' in f_p:
-                log_files.append(f_p)
-    if len(log_files) > 1:
-        log_files = sort_strings_with_embedded_numbers(log_files)
-
-    if args.cfg:
-        cfg_file = args.cfg
-    else:
-        cfg_file = './config.json'
-
-    if args.xlsx:
-        xlsx_file_path = args.xlsx
-    else:
-        xlsx_file_path = './navLog.xlsx'
-
+def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
     xlsx_file = NavXlsxFile()
     nav_log = NavLog()
     with open(cfg_file, 'r') as json_file:
@@ -75,7 +47,7 @@ if __name__ == "__main__":
             sheet_name = log_file_name
             xlsx_file.createSheet(sheet_name)
             work_sheet = xlsx_file.selectSheet(sheet_name)
-            
+
             origin_point = {'row':1, 'col':1}
             route_cursor = {}
             search_cursor = {}
@@ -143,14 +115,14 @@ if __name__ == "__main__":
                                         begin_time = begin_result["time"]
                                 else:
                                     begin_time = nav_log.getBeginTime()
-                                
+
                                 if end:
                                     end_result = nav_log.getLog(end)
                                     if end_result:
                                         end_time = end_result["time"]
                                 else:
                                     end_time = nav_log.getEndTime()
-                                
+
                                 if work_sheet.cell(boot_up["cell_point"]["left_up"]["row"], \
                                         col_offset).value == None:
                                     xlsx_file.writeCell(boot_up["cell_point"]["left_up"]["row"], \
@@ -171,7 +143,7 @@ if __name__ == "__main__":
                                                         boot_up["cell_point"]["right_down"]["row"],
                                                         boot_up["cell_point"]["right_down"]["col"],
                                                         )
-          
+
                 elif k == "Routing":
                     pass
                     routing = {}  # routing message
@@ -201,12 +173,12 @@ if __name__ == "__main__":
                         end_logs = []
                         begin = v_1["log point"]["begin"].encode("utf-8")
                         end = v_1["log point"]["end"].encode("utf-8")
-                        
+
                         if begin:
                             begin_logs = nav_log.getLogs(begin)
                         else:
                             continue
-                        
+
                         if end:
                             end_logs = nav_log.getLogs(end)
                         else:
@@ -241,7 +213,7 @@ if __name__ == "__main__":
                                     else:
                                         match["begin_index"] = begin_logs[index1]["index"]          # get match "index"
                                         match["end_index"] = end_logs[index2]["index"]
-                                        match["delta_time"] = end_logs[index2]["time"] - begin_logs[index1]["time"]  # get match "delta_time"                                                             
+                                        match["delta_time"] = end_logs[index2]["time"] - begin_logs[index1]["time"]  # get match "delta_time"
 
                                         matchs.append(match)
                                         index1 += 1
@@ -265,7 +237,7 @@ if __name__ == "__main__":
                                 if not result:
                                     search_key = "Route request:"
                                     result = nav_log.getLog(search_key, cur_route_match["begin_index"])
-                                    
+
                             else:
                                 next_match = cal_route_matchs[cal_route_index + 1]
                                 result = result = nav_log.getLog(search_key, cur_route_match["begin_index"], next_match["end_index"])
@@ -289,7 +261,7 @@ if __name__ == "__main__":
                                     routing["process"]["Calculate Route"]["groups"][dst_name] = {}
                                     routing["process"]["Calculate Route"]["groups"][dst_name]["total"] = []
                                     routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
-                                
+
                                 if routing["process"].has_key("Calculate Guidance") \
                                 and routing["process"]["Calculate Guidance"].has_key("matchs") \
                                 and routing["process"]["Calculate Guidance"]["matchs"]:
@@ -309,7 +281,7 @@ if __name__ == "__main__":
                                                     routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
                                                     routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
                                                     routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
-                                            
+
                                     else:
                                         for cal_guidance_match in cal_guidance_matchs:
                                             if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]\
@@ -326,7 +298,7 @@ if __name__ == "__main__":
                                                     routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
                                                     routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
                                                     routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
-                                                
+
                             cal_route_index += 1
 
                     cur_row = routing["cell_point"]["left_up"]["row"] + 1
@@ -369,7 +341,7 @@ if __name__ == "__main__":
                                             xlsx_file.writeCell(cur_row, avg_col+1, group_value["total"][0]["delta_time"].total_seconds())
                                             if routing["cell_point"]["right_down"]["col"] < avg_col + 1:
                                                 routing["cell_point"]["right_down"]["col"] = avg_col + 1
-                                        
+
                                         cur_row += 1
                                     merge_cell_end_row = cur_row
                                     xlsx_file.mergeCell(sheet_name, begin_row=merge_cell_start_row,
@@ -388,9 +360,9 @@ if __name__ == "__main__":
                     xlsx_file.setCellBorder(sheet_name, routing["cell_point"]["left_up"]["row"],
                                                         routing["cell_point"]["left_up"]["col"],
                                                         routing["cell_point"]["right_down"]["row"],
-                                                        routing["cell_point"]["right_down"]["col"],) 
+                                                        routing["cell_point"]["right_down"]["col"],)
 
-                                                        
+
                 elif k == "Search":
                     search = {}
                     search["cell_point"] = {}
@@ -411,13 +383,13 @@ if __name__ == "__main__":
                     row_offset = 0
                     index = 0
                     xlsx_file.writeCell(search["cell_point"]["left_up"]["row"] , 1, k)  # write cell "search"
-                          
+
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
                         if k_1 == "OneBox_TASDK_Cloud" or k_1 == "OneBox_TASDK_OnBoard" \
                             or k_1 == "OneBox_QTARP_Cloud" or k_1 == "OneBox_QTARP_OnBoard":
                             continue
-                        
+
                         cur_col = 1
                         row_offset += 1
                         index += 1
@@ -425,7 +397,7 @@ if __name__ == "__main__":
 
                         for k_2, v_2 in v_1.items():
                             k_2 = k_2.encode("utf-8")
-                            
+
                             if k_2 == "process name":
                                 pass
                                 cur_col += 1
@@ -450,17 +422,17 @@ if __name__ == "__main__":
                                     begin_logs = nav_log.getLogs(begin)
                                 else:
                                     continue
-                                
+
                                 if end:
                                     end_logs = nav_log.getLogs(end)
                                 else:
                                     continue
-                                
+
                                 matchs = []
                                 if begin_logs and end_logs:   # get total matchs
                                     index1 = 0
                                     index2 = 0
-                                    
+
                                     while index1 < len(begin_logs) and index2 < len(end_logs):
                                         match = {}
                                         match["begin_index"] = 0
@@ -492,7 +464,7 @@ if __name__ == "__main__":
                                                 match["end_index"] = end_logs[index2]["index"]
                                                 delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
                                                 match["delta_time"] = round(delta_time.total_seconds(), 3)     # get match "delta_time"
-                        
+
                                                 matchs.append(match)
                                                 break
 
@@ -610,7 +582,7 @@ if __name__ == "__main__":
                                                             tasdk_onboard_match["delta_time"] = (end_log["time"] - begin_log["time"]).total_seconds()
                                                             tasdk_onboard_match["begin_index"] = begin_log["index"]
                                                             tasdk_onboard_match["end_index"] = end_log["index"]
-                                                            group_value["OneBox_TASDK_OnBoard"].append(tasdk_onboard_match) 
+                                                            group_value["OneBox_TASDK_OnBoard"].append(tasdk_onboard_match)
 
                         # let's fill xlsx
                         if search["process"] and search["process"].has_key(k_1) and search["process"][k_1] \
@@ -624,7 +596,7 @@ if __name__ == "__main__":
                                 xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], sub_group_col, "sub group")
                             if work_sheet.cell(search["cell_point"]["left_up"]["row"], avg_col).value == None:
                                 xlsx_file.writeCell(search["cell_point"]["left_up"]["row"], avg_col, "average time cost")
-                        
+
                             if search["process"][k_1].has_key("groups") and search["process"][k_1]["groups"]:
                                 merge_cell_begin_row = search["cell_point"]["left_up"]["row"] + row_offset
                                 for group_name, group_value in search["process"][k_1]["groups"].items():
@@ -657,7 +629,7 @@ if __name__ == "__main__":
 
                                                 if search["cell_point"]["right_down"]["col"] < avg_col + 1:
                                                     search["cell_point"]["right_down"]["col"] = avg_col + 1
-                                        row_offset += 1 
+                                        row_offset += 1
                                 row_offset -= 1
                                 merge_cell_end_row = search["cell_point"]["left_up"]["row"] + row_offset
                                 xlsx_file.mergeCell(sheet_name, begin_row=merge_cell_begin_row, end_col=4,
@@ -683,7 +655,7 @@ if __name__ == "__main__":
                     mapdisplay["cell_point"]["right_down"]["col"] = 1
 
                     mapdisplay["object"] = collections.OrderedDict()
-                    
+
                     if work_sheet.max_row == 1:
                         mapdisplay["cell_point"]["left_up"]["row"] = work_sheet.max_row
                     else:
@@ -730,7 +702,7 @@ if __name__ == "__main__":
                                         begin_logs = nav_log.getLogs(begin)
                                 else:
                                     continue
-                                
+
                                 if end:
                                     end_logs = nav_log.getLogs(end)
                                 else:
@@ -740,7 +712,7 @@ if __name__ == "__main__":
                                     mapdisplay["object"][k_1]["total"]["matchs"] = []
                                     index1 = 0
                                     index2 = 0
-                                    
+
                                     while index1 < len(begin_logs) and index2 < len(end_logs):
                                         match = {}
                                         match["begin_index"] = 0
@@ -761,7 +733,7 @@ if __name__ == "__main__":
                                                 match["index"] = begin_logs[index1]["index"]          # get match "index"
                                                 delta_time = end_logs[index2]["time"] - begin_logs[index1]["time"]
                                                 match["delta_time"] = round(delta_time.total_seconds(), 3)     # get match "delta_time"
-                        
+
                                                 mapdisplay["object"][k_1]["total"]["matchs"].append(match)
                                                 break
                                             if next_begin_index < end_index:
@@ -793,7 +765,7 @@ if __name__ == "__main__":
                                 if mapdisplay["object"][k_1]["group"]:
                                     if work_sheet.cell(mapdisplay["cell_point"]["left_up"]["row"], cur_col).value == None:
                                         xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"], cur_col, "average time comst(ms)")
-                                
+
                                     for k, v in mapdisplay["object"][k_1]["group"].items():
                                         if v:
                                             xlsx_file.writeCell(mapdisplay["cell_point"]["left_up"]["row"] + row_offset, cur_col, v["avg"])
@@ -813,12 +785,45 @@ if __name__ == "__main__":
                     mapdisplay["cell_point"]["right_down"]["row"] = work_sheet.max_row
                     xlsx_file.mergeCell(sheet_name, begin_row=mapdisplay["cell_point"]["left_up"]["row"],
                                                     end_row=mapdisplay["cell_point"]["right_down"]["row"])
-                    
+
                     xlsx_file.setCellBorder(sheet_name, mapdisplay["cell_point"]["left_up"]["row"],
                                                         mapdisplay["cell_point"]["left_up"]["col"],
                                                         mapdisplay["cell_point"]["right_down"]["row"],
-                                                        mapdisplay["cell_point"]["right_down"]["col"],)                                       
-        
+                                                        mapdisplay["cell_point"]["right_down"]["col"],)
+
             xlsx_file.resize(sheet_name)
     xlsx_file.create(xlsx_file_path)
 
+
+
+if __name__ == "__main__":
+	arg_parser = ArgumentParser()
+	arg_parser.add_argument('log_files', nargs = '*', help = "input log file")
+	arg_parser.add_argument('--cfg', help="config file, eg: path/config.json")
+	arg_parser.add_argument('--xlsx', help='xlsx file')
+	args = arg_parser.parse_args()
+
+	log_files = []
+	if args.log_files:
+		for f_p in args.log_files:
+			if os.path.isdir(f_p):
+				files = getFileList(f_p)
+				for file in files:
+					if '.log' in file:
+						log_files.append(f_p + file)
+			elif '.log' in f_p:
+				log_files.append(f_p)
+	if len(log_files) > 1:
+		log_files = sort_strings_with_embedded_numbers(log_files)
+
+	if args.cfg:
+		cfg_file = args.cfg
+	else:
+		cfg_file = './config.json'
+
+	if args.xlsx:
+		xlsx_file_path = args.xlsx
+	else:
+		xlsx_file_path = './navLog.xlsx'
+
+	logAnalyze(cfg_file, xlsx_file_path, log_files)
