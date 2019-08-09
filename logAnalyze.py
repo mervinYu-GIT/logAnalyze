@@ -48,20 +48,20 @@ def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
             xlsx_file.createSheet(sheet_name)
             work_sheet = xlsx_file.selectSheet(sheet_name)
 
-            origin_point = {'row':1, 'col':1}
-            route_cursor = {}
-            search_cursor = {}
-            route_flag = 0
-            search_flag = 0
+            # origin_point = {'row':1, 'col':1}
+            # route_cursor = {}
+            # search_cursor = {}
+            # route_flag = 0
+            # search_flag = 0
 
             # sheet_data attribute
-            sheet_data_attr = {}
+            # sheet_data_attr = {}
 
-            root = collections.OrderedDict()      # global data
+            # root = collections.OrderedDict()      # global data
 
             for k, v in json_data.items():
                 k = k.encode("utf-8")
-                first_title = k
+                # first_title = k
                 if k == "boot-up":
                     pass
                     boot_up = {}
@@ -80,7 +80,7 @@ def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
                     xlsx_file.writeCell(boot_up["cell_point"]["left_up"]["row"] , 1, k)
                     for k_1, v_1 in v.items():
                         k_1 = k_1.encode("utf-8")
-                        second_title = k_1
+                        # second_title = k_1
                         row_offset += 1
                         row = boot_up["cell_point"]["left_up"]["row"] + row_offset
 
@@ -240,64 +240,74 @@ def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
 
                             else:
                                 next_match = cal_route_matchs[cal_route_index + 1]
-                                result = result = nav_log.getLog(search_key, cur_route_match["begin_index"], next_match["end_index"])
+                                result = nav_log.getLog(search_key, cur_route_match["begin_index"], next_match["end_index"])
                                 if not result:
                                     search_key = "Route request:"
                                     result = nav_log.getLog(search_key, cur_route_match["begin_index"], next_match["end_index"])
 
                             if result:
+                                # print("=============result=====================")
+                                # print(result)
                                 msg = result["message"]
-                                search_point_begin = msg.index("formatted_address:")
-                                dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1]
-                                if routing["process"]["Calculate Route"].has_key("groups"):
-                                    if routing["process"]["Calculate Route"]["groups"].has_key(dst_name):
-                                        routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
+                                # print("=============msg=========================")
+                                # print(msg)
+                                try:
+                                    # search_point_begin = msg.index("formatted_address:")
+                                    search_point_begin = msg.index("id", msg.index("destinations"), msg.index("location"))
+                                except ValueError:
+                                    print("missing formatted_address line!\n")
+                                    pass
+                                else:
+                                    dst_name = msg[msg.index("\"", search_point_begin) + 1:msg.index("\n", search_point_begin) - 1][-8:]
+                                    if routing["process"]["Calculate Route"].has_key("groups"):
+                                        if routing["process"]["Calculate Route"]["groups"].has_key(dst_name):
+                                            routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
+                                        else:
+                                            routing["process"]["Calculate Route"]["groups"][dst_name] = {}
+                                            routing["process"]["Calculate Route"]["groups"][dst_name]["total"] = []
+                                            routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
                                     else:
+                                        routing["process"]["Calculate Route"]["groups"] = collections.OrderedDict()
                                         routing["process"]["Calculate Route"]["groups"][dst_name] = {}
                                         routing["process"]["Calculate Route"]["groups"][dst_name]["total"] = []
                                         routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
-                                else:
-                                    routing["process"]["Calculate Route"]["groups"] = collections.OrderedDict()
-                                    routing["process"]["Calculate Route"]["groups"][dst_name] = {}
-                                    routing["process"]["Calculate Route"]["groups"][dst_name]["total"] = []
-                                    routing["process"]["Calculate Route"]["groups"][dst_name]["total"].append(cur_route_match)
 
-                                if routing["process"].has_key("Calculate Guidance") \
-                                and routing["process"]["Calculate Guidance"].has_key("matchs") \
-                                and routing["process"]["Calculate Guidance"]["matchs"]:
-                                    cal_guidance_matchs = routing["process"]["Calculate Guidance"]["matchs"][:]
-                                    if cal_route_index == len(cal_route_matchs) - 1:
-                                        for cal_guidance_match in cal_guidance_matchs:
-                                            if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]:
-                                                if routing["process"]["Calculate Guidance"].has_key("groups"):
-                                                    if routing["process"]["Calculate Guidance"]["groups"].has_key(dst_name):
-                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                    if routing["process"].has_key("Calculate Guidance") \
+                                    and routing["process"]["Calculate Guidance"].has_key("matchs") \
+                                    and routing["process"]["Calculate Guidance"]["matchs"]:
+                                        cal_guidance_matchs = routing["process"]["Calculate Guidance"]["matchs"][:]
+                                        if cal_route_index == len(cal_route_matchs) - 1:
+                                            for cal_guidance_match in cal_guidance_matchs:
+                                                if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]:
+                                                    if routing["process"]["Calculate Guidance"].has_key("groups"):
+                                                        if routing["process"]["Calculate Guidance"]["groups"].has_key(dst_name):
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                        else:
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
                                                     else:
+                                                        routing["process"]["Calculate Guidance"]["groups"] = collections.OrderedDict()
                                                         routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
                                                         routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
                                                         routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
-                                                else:
-                                                    routing["process"]["Calculate Guidance"]["groups"] = collections.OrderedDict()
-                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
-                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
-                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
 
-                                    else:
-                                        for cal_guidance_match in cal_guidance_matchs:
-                                            if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]\
-                                                and cal_guidance_match["end_index"] < cal_route_matchs[cal_route_index+1]["end_index"]:
-                                                if routing["process"]["Calculate Guidance"].has_key("groups"):
-                                                    if routing["process"]["Calculate Guidance"]["groups"].has_key(dst_name):
-                                                        routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                        else:
+                                            for cal_guidance_match in cal_guidance_matchs:
+                                                if cal_guidance_match["begin_index"] > cur_route_match["begin_index"]\
+                                                    and cal_guidance_match["end_index"] < cal_route_matchs[cal_route_index+1]["end_index"]:
+                                                    if routing["process"]["Calculate Guidance"].has_key("groups"):
+                                                        if routing["process"]["Calculate Guidance"]["groups"].has_key(dst_name):
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
+                                                        else:
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
+                                                            routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
                                                     else:
+                                                        routing["process"]["Calculate Guidance"]["groups"] = collections.OrderedDict()
                                                         routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
                                                         routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
                                                         routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
-                                                else:
-                                                    routing["process"]["Calculate Guidance"]["groups"] = collections.OrderedDict()
-                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name] = {}
-                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"] = []
-                                                    routing["process"]["Calculate Guidance"]["groups"][dst_name]["total"].append(cal_guidance_match)
 
                             cal_route_index += 1
 
@@ -344,8 +354,8 @@ def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
 
                                         cur_row += 1
                                     merge_cell_end_row = cur_row
-                                    xlsx_file.mergeCell(sheet_name, begin_row=merge_cell_start_row,
-                                                                end_row=merge_cell_end_row-1)
+                                    xlsx_file.mergeCell(sheet_name, begin_row=merge_cell_start_row,end_row=merge_cell_end_row-1)
+                                    cur_row -= 1
                                 else:
                                     if routing["cell_point"]["right_down"]["col"] < avg_col:
                                         routing["cell_point"]["right_down"]["col"] = avg_col
@@ -355,6 +365,7 @@ def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
                                 if work_sheet.cell(routing["cell_point"]["left_up"]["row"], cur_col).value == None:
                                     xlsx_file.writeCell(routing["cell_point"]["left_up"]["row"], cur_col, k_2)
                                 xlsx_file.writeCell(cur_row, cur_col, v_2)
+                        cur_row += 1
 
                     routing["cell_point"]["right_down"]["row"] = work_sheet.max_row
                     xlsx_file.setCellBorder(sheet_name, routing["cell_point"]["left_up"]["row"],
@@ -470,12 +481,12 @@ def logAnalyze(cfg_file, xlsx_file_path, log_files=[]):
 
                                 search["process"][k_1] = {}
                                 search["process"][k_1]["groups"] = collections.OrderedDict()
-                                if k_1 == "Category":
-                                    pattern = re.compile(r'"(\d+)"')
-                                elif k_1 == "OneBox":
-                                    pattern = re.compile(r'"(.+)"')
-                                elif k_1 == "Suggestion":
-                                    pattern = re.compile(r'"(.+)"')
+                                # if k_1 == "Category":
+                                #     pattern = re.compile(r'"(\d+)"')
+                                # elif k_1 == "OneBox":
+                                #     pattern = re.compile(r'"(.+)"')
+                                # elif k_1 == "Suggestion":
+                                #     pattern = re.compile(r'"(.+)"')
                                 if matchs:
                                     for match in matchs:
                                         group_log = nav_log.getLog(v_1["key_name"]["search_key"].encode("utf-8"), match["begin_index"], match["end_index"] + 1)
