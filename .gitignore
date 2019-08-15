@@ -127,7 +127,7 @@ dmypy.json
 # new add
 logdissect
 navigation-logs/
-*.json
 *.xlsx
+*.json
 *.txt
 SWDD/

@@ -37,3 +37,4 @@ navlog_file: This paramet must be needed in cmd line, it is that you want to ana
 4. Identify the path to the navigation log file that you need to analyze，eg: ./navigation.log
 5. Make sure you want to save the path to the excle file, eg: ./log_excle/navLog.xlsx, the ./log_excle must be exist.
 6. then type "python.exe logAnalyze.py ./navigation.log --cfg ./my_config.json --xlsx ./log_excle/navLog.xlsx"
+7. if you want to batch processing .log file under the same folder, just tap folder path. like this : python logAnalyze.py log_folder/ ...
