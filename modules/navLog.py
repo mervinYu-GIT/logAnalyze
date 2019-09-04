@@ -131,17 +131,3 @@ class NavLog:
                 results.append(result)
 
         return results
-
-
-
-
-
-
-
-
-
-
-
-
-
-
