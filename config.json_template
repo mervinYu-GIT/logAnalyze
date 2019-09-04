@@ -125,7 +125,7 @@
 			"log point": {
 				"begin": "P12.R083.01  : One box search : Start Marker:",
 				"end": "P12.R083.01  : One box search : End Marker:"
-			},
+			}
 		},
 		"Category": {
 			"process name": "Category",
@@ -136,7 +136,7 @@
 			"log point": {
 				"begin": "P12.R083.01  : Poi category search : Start Marker:",
 				"end": "P12.R083.01  : Poi category search : End Marker:"
-			},
+			}
 		},
 		"Suggestion": {
 			"process name": "Suggestion",
@@ -147,7 +147,7 @@
 			"log point": {
 				"begin": "QAutoSuggestionSearchFlowImpl send query",
 				"end": "QAutoSuggestionearchFlowImpl receive onAutoSuggestionSearchFinish result"
-			},
+			}
 		}
 	},
 	"MapDisplay": {
@@ -176,4 +176,4 @@
 			}
 		}
 	}
-} 
+}

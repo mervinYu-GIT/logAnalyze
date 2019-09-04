@@ -5,6 +5,7 @@ import sys
 from os import path
 from datetime import datetime
 import unittest
+import re
 
 
 
@@ -18,6 +19,8 @@ class NavLog:
 
     def loadLogFile(self, log_file, name=None):
         logs = []
+        pattern = r"\b(Dbg|Wrn|Inf|Crt|Ftl)\|"
+        prog = re.compile(pattern)
         if log_file[-4:] != '.log':
             print("valid file!")
             sys.exit()
@@ -36,14 +39,14 @@ class NavLog:
                 list_len = len(file_lines)
                 while index < list_len - 1:        # touch the list end
                     index += 1
-                    curLine = file_lines[index]    
+                    curLine = file_lines[index]
                     if index == list_len - 1:      # last list item, so we should break loop
                         # self.__listAppend(curLine)
                         logs.append(curLine)
                         break
                     if curLine.isspace():          # list item is space, just ignore it
                         continue
-                    elif curLine.find('|') == 3:
+                    elif prog.search(curLine, 0, 5):
                         while True:
                             index += 1
                             nextLine = file_lines[index]
@@ -51,7 +54,7 @@ class NavLog:
                                 # self.__listAppend(curLine)
                                 logs.append(curLine)
                                 break
-                            elif nextLine.find('|') == 3:
+                            elif prog.search(curLine, 0, 5):
                                 if index == list_len - 1:   # last list item
                                     # self.__listAppend(curLine)
                                     # self.__listAppend(nextLine)
@@ -87,7 +90,7 @@ class NavLog:
         else:
             return self.logs[start:end]
 
-    
+
     def getBeginTime(self):
         time = self.attribute["begin_time"]
         return time
@@ -112,7 +115,7 @@ class NavLog:
 
         return result
 
- 
+
     def getLogs(self, key):
         """ return log and log index """
         logs = self.logs[:]
@@ -130,16 +133,15 @@ class NavLog:
         return results
 
 
-        
-
-
-
-                
-        
 
 
 
 
 
 
-    
+
+
+
+
+
+
